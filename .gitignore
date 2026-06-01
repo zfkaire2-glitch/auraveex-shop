@@ -3,3 +3,4 @@ node_modules/
 *.log
 vaulted-sector-*.json
 start-hidden.vbs
+cookies*.txt
