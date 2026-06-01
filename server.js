@@ -281,13 +281,11 @@ app.get('/track', (_req, res) => {
 app.post('/track', (_req, res) => {
   const query = (_req.body.query || '').trim();
   const orders = store.getOrders();
-  const order = orders.find(o =>
-    o.id.toLowerCase() === query.toLowerCase() || o.phone === query
-  );
+  const order = orders.find(o => o.phone === query);
   res.render('track', {
     order: order || null,
     query,
-    error: order ? null : 'لم نعثر على طلب بهذه المعلومات',
+    error: order ? null : 'طلبك مازال قيد التحضير',
     cartCount: 0,
   });
 });

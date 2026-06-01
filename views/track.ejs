@@ -43,10 +43,10 @@
   <main class="section">
     <div class="track-page">
       <h1>📦 تتبع طلبك</h1>
-      <p class="sub">أدخل رقم الطلب أو رقم الهاتف</p>
+      <p class="sub">أدخل رقم هاتفك لتتبع طلبك</p>
 
       <form method="POST" action="/track" class="track-form">
-        <input type="text" name="query" value="<%= query %>" placeholder="مثال: ORD-A4B6B19B أو 0555123456" required>
+        <input type="text" name="query" value="<%= query %>" placeholder="مثال: 0555123456" required>
         <button type="submit">بحث</button>
       </form>
 
@@ -94,7 +94,7 @@
         </div>
       <% } %>
 
-      <div class="hint">💡 يمكنك تتبع طلبك في أي وقت باستخدام رقم الطلب أو رقم الهاتف</div>
+      <div class="hint">💡 أدخل رقم هاتفك المستخدم في الطلب لتتبعه</div>
     </div>
   </main>
   <%- include('partials/footer') %>
