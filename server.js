@@ -142,6 +142,26 @@ app.get('/debug', (_req, res) => {
   });
 });
 
+app.get('/debug/test-sheet', async (_req, res) => {
+  const result = await saveOrder({
+    id: 'TEST-' + Date.now(),
+    firstName: 'test',
+    lastName: 'test',
+    phone: '0555000000',
+    address: 'test address',
+    wilaya: 'test',
+    wilayaId: 0,
+    commune: 'test',
+    items: [{ name: 'test item', quantity: 1, price: 100 }],
+    subtotal: 100,
+    deliveryPrice: 0,
+    total: 100,
+    status: 'جديد',
+    trackingCode: null,
+  });
+  res.json({ saved: result, sheetsReady: isSheetsReady() });
+});
+
 app.get('/', (_req, res) => {
   const products = store.getProducts();
   const categories = [...new Set(products.map(p => p.category))];
