@@ -8,8 +8,12 @@ let sheetsClient = null;
 
 export function initSheets() {
   const keyPath = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-  if (!keyPath || !existsSync(keyPath)) {
-    console.log('Google Sheets: No service account key found, skipping.');
+  if (!keyPath) {
+    console.log('Google Sheets: GOOGLE_SERVICE_ACCOUNT_KEY not set, skipping.');
+    return false;
+  }
+  if (!existsSync(keyPath)) {
+    console.log('Google Sheets: Key file not found at', keyPath, 'skipping.');
     return false;
   }
 
@@ -25,6 +29,10 @@ export function initSheets() {
     console.warn('Google Sheets init failed:', err.message);
     return false;
   }
+}
+
+export function isSheetsReady() {
+  return sheetsClient !== null;
 }
 
 export async function saveOrder(order) {

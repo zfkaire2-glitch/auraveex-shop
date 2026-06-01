@@ -5,7 +5,8 @@ import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { initSheets, saveOrder } from './sheets.js';
+import { existsSync } from 'fs';
+import { initSheets, saveOrder, isSheetsReady } from './sheets.js';
 import communes from './data/communes.json' with { type: 'json' };
 import { calculateDelivery, createShipment } from './yalidine.js';
 import * as store from './store.js';
@@ -130,6 +131,16 @@ function requireAdmin(req, res, next) {
 }
 
 // ---------- Public routes ----------
+
+app.get('/debug', (_req, res) => {
+  res.json({
+    sheetsReady: isSheetsReady(),
+    keyPath: process.env.GOOGLE_SERVICE_ACCOUNT_KEY || 'NOT SET',
+    sheetId: process.env.GOOGLE_SHEET_ID ? (process.env.GOOGLE_SHEET_ID.slice(0, 8) + '...') : 'NOT SET',
+    nodeVersion: process.version,
+    env: process.env.NODE_ENV || 'not set',
+  });
+});
 
 app.get('/', (_req, res) => {
   const products = store.getProducts();
