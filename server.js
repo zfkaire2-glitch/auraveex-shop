@@ -274,6 +274,24 @@ app.get('/orders', (_req, res) => {
   });
 });
 
+app.get('/track', (_req, res) => {
+  res.render('track', { order: null, query: '', error: null, cartCount: 0 });
+});
+
+app.post('/track', (_req, res) => {
+  const query = (_req.body.query || '').trim();
+  const orders = store.getOrders();
+  const order = orders.find(o =>
+    o.id.toLowerCase() === query.toLowerCase() || o.phone === query
+  );
+  res.render('track', {
+    order: order || null,
+    query,
+    error: order ? null : 'لم نعثر على طلب بهذه المعلومات',
+    cartCount: 0,
+  });
+});
+
 // ---------- Admin routes ----------
 
 app.get('/admin/login', (_req, res) => {

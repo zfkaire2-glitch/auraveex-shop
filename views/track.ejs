@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تتبع طلبك - AURA VEEX</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .track-page { max-width: 650px; margin: 0 auto; padding: 2rem 0; }
+    .track-page h1 { text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem; }
+    .track-page p.sub { text-align: center; color: #666; margin-bottom: 2rem; font-size: 1.1rem; }
+    .track-form { display: flex; gap: 0.75rem; max-width: 500px; margin: 0 auto 2rem; }
+    .track-form input { flex: 1; padding: 0.9rem 1.2rem; border: 2px solid #d1d5db; border-radius: 10px; font-size: 1.1rem; text-align: center; }
+    .track-form input:focus { border-color: #1a1a1a; outline: none; }
+    .track-form button { padding: 0.9rem 2rem; background: #1a1a1a; color: #fff; border: none; border-radius: 10px; font-size: 1.1rem; cursor: pointer; white-space: nowrap; }
+    .track-form button:hover { background: #333; }
+    .error { text-align: center; color: #c62828; font-size: 1.1rem; margin-bottom: 1.5rem; }
+    .result-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.8rem; border-bottom: 2px solid #f0f0f0; }
+    .result-header .id { font-weight: 700; font-size: 1.1rem; color: #1a1a1a; }
+    .badge { display: inline-block; padding: 0.25rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
+    .badge-new { background: #e3f2fd; color: #1565c0; }
+    .badge-call1 { background: #fff3e0; color: #e65100; }
+    .badge-call2 { background: #fff3e0; color: #e65100; }
+    .badge-confirmed { background: #e8f5e9; color: #2e7d32; }
+    .badge-cancelled { background: #fbe9e7; color: #c62828; }
+    .result-body { color: #555; line-height: 2; font-size: 1.05rem; }
+    .result-body span { color: #1a1a1a; }
+    .result-items { margin: 0.8rem 0; padding: 0.8rem 0; border-top: 1px dashed #e0e0e0; border-bottom: 1px dashed #e0e0e0; }
+    .result-item { display: flex; justify-content: space-between; padding: 0.3rem 0; }
+    .result-total { display: flex; justify-content: space-between; font-weight: 700; font-size: 1.1rem; margin-top: 0.5rem; color: #1a1a1a; }
+    .tracking-link { display: block; text-align: center; margin-top: 1rem; padding: 0.8rem; background: #e8f5e9; border-radius: 10px; font-size: 1.1rem; color: #2e7d32; text-decoration: none; font-weight: 600; }
+    .tracking-link:hover { background: #c8e6c9; }
+    .hint { text-align: center; color: #888; font-size: 0.9rem; margin-top: 2rem; }
+    @media (max-width: 500px) {
+      .track-form { flex-direction: column; }
+      .track-form button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main class="section">
+    <div class="track-page">
+      <h1>📦 تتبع طلبك</h1>
+      <p class="sub">أدخل رقم الطلب أو رقم الهاتف</p>
+
+      <form method="POST" action="/track" class="track-form">
+        <input type="text" name="query" value="<%= query %>" placeholder="مثال: ORD-A4B6B19B أو 0555123456" required>
+        <button type="submit">بحث</button>
+      </form>
+
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+
+      <% if (order) { %>
+        <div class="result-card">
+          <div class="result-header">
+            <span class="id">📋 <%= order.id %></span>
+            <span class="badge badge-<%=
+              order.status === 'جديد' ? 'new' :
+              order.status === 'اتصال 1' ? 'call1' :
+              order.status === 'اتصال 2' ? 'call2' :
+              order.status === 'مؤكد' ? 'confirmed' :
+              order.status === 'ملغي' ? 'cancelled' : 'new'
+            %>"><%= order.status %></span>
+          </div>
+          <div class="result-body">
+            <div>👤 <%= order.firstName %> <%= order.lastName %></div>
+            <div>📞 <%= order.phone %></div>
+            <div>📍 <%= order.address %><%= order.commune ? '، ' + order.commune : '' %>، <%= order.wilaya %></div>
+          </div>
+          <div class="result-items">
+            <% order.items.forEach(item => { %>
+              <div class="result-item">
+                <span><%= item.name %> x<%= item.quantity %></span>
+                <span><%= (item.price * item.quantity).toLocaleString() %> د.ج</span>
+              </div>
+            <% }) %>
+          </div>
+          <div class="result-body">
+            <% if (order.deliveryPrice) { %>
+              <div>🚚 التوصيل: <span><%= order.deliveryPrice.toLocaleString() %> د.ج</span></div>
+            <% } %>
+          </div>
+          <div class="result-total">
+            <span>المجموع</span>
+            <span><%= order.total.toLocaleString() %> د.ج</span>
+          </div>
+          <% if (order.trackingCode) { %>
+            <a href="https://track.yalidine.app/<%= order.trackingCode %>" target="_blank" class="tracking-link">📦 تتبع الطرد (Yalidine)</a>
+          <% } %>
+        </div>
+      <% } %>
+
+      <div class="hint">💡 يمكنك تتبع طلبك في أي وقت باستخدام رقم الطلب أو رقم الهاتف</div>
+    </div>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>
