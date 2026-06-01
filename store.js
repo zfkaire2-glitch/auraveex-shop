@@ -104,3 +104,12 @@ export function updateOrderStatus(id, status) {
   writeFileSync(ORDERS_PATH, JSON.stringify(orders, null, 2), 'utf-8');
   return true;
 }
+
+export function updateOrderTracking(id, trackingCode) {
+  const orders = getOrders();
+  const idx = orders.findIndex(o => o.id === id);
+  if (idx === -1) return false;
+  orders[idx].trackingCode = trackingCode || null;
+  writeFileSync(ORDERS_PATH, JSON.stringify(orders, null, 2), 'utf-8');
+  return true;
+}

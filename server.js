@@ -345,6 +345,11 @@ app.post('/admin/orders/status', requireAdmin, (_req, res) => {
   res.redirect('/admin/orders');
 });
 
+app.post('/admin/orders/tracking', requireAdmin, (_req, res) => {
+  store.updateOrderTracking(_req.body.id, _req.body.trackingCode);
+  res.redirect('/admin/orders');
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`E-commerce store running on http://localhost:${PORT}`);

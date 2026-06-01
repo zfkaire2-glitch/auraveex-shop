@@ -26,6 +26,9 @@
     .badge-cancelled { background: #fbe9e7; color: #c62828; }
     .status-form { display: flex; gap: 0.5rem; align-items: center; }
     .status-form select { padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; background: #f0f0f0; }
+    .tracking-form { display: flex; gap: 0.5rem; align-items: center; }
+    .tracking-form input { flex: 1; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; background: #fff; direction: ltr; text-align: left; }
+    .tracking-section { margin: 0.5rem 0; padding: 0.5rem 0; border-top: 1px dashed #d1d5db; }
   </style>
 </head>
 <body>
@@ -60,6 +63,13 @@
             <div>📞 <%= o.phone %></div>
             <div>📍 <%= o.address %>, <%= o.commune ? o.commune + ', ' : '' %><span><%= o.wilaya %></span></div>
             <div>📦 <% o.items.forEach(i => { %><%= i.name %> x<%= i.quantity %> <% }) %></div>
+          </div>
+          <div class="tracking-section">
+            <form action="/admin/orders/tracking" method="POST" class="tracking-form">
+              <input type="hidden" name="id" value="<%= o.id %>">
+              <input type="text" name="trackingCode" value="<%= o.trackingCode || '' %>" placeholder="رمز التتبع (Yalidine)">
+              <button type="submit" class="btn-sm">حفظ</button>
+            </form>
           </div>
           <div class="order-card-footer">
             <span>💰 <%= o.subtotal ? o.subtotal.toLocaleString() + ' د.ج' : '' %><%= o.deliveryPrice ? ' + توصيل ' + o.deliveryPrice.toLocaleString() + ' د.ج' : '' %> = <%= o.total.toLocaleString() %> د.ج</span>
