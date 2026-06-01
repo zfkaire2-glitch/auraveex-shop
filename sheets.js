@@ -7,7 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 let sheetsClient = null;
 
 export function initSheets() {
-  const keyPath = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  const keyPath = (process.env.GOOGLE_SERVICE_ACCOUNT_KEY || '').trim();
   if (!keyPath) {
     console.log('Google Sheets: GOOGLE_SERVICE_ACCOUNT_KEY not set, skipping.');
     return false;
