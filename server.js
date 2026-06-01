@@ -162,6 +162,16 @@ app.get('/debug/test-sheet', async (_req, res) => {
   res.json({ saved: result, sheetsReady: isSheetsReady() });
 });
 
+app.get('/debug/backfill', async (_req, res) => {
+  const orders = store.getOrders();
+  let ok = 0, fail = 0;
+  for (const order of orders) {
+    const r = await saveOrder(order);
+    if (r) ok++; else fail++;
+  }
+  res.json({ total: orders.length, saved: ok, failed: fail });
+});
+
 app.get('/', (_req, res) => {
   const products = store.getProducts();
   const categories = [...new Set(products.map(p => p.category))];
