@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA VEEX</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main>
+    <section class="hero" style="background:linear-gradient(135deg,rgba(0,0,0,.65),rgba(0,0,0,.45)),url('/uploads/hero-eagle.jpg') center/cover no-repeat">
+      <h1>AURA VEEX</h1>
+      <p>🔥 Elevate Your Style — Premium Streetwear & Urban Fashion 🖤</p>
+      <a href="/products" class="btn">تسوق الآن</a>
+    </section>
+
+    <section class="section">
+      <h2>الأقسام</h2>
+      <div class="categories">
+        <% categories.forEach(cat => { %>
+          <a href="/products?category=<%= encodeURIComponent(cat) %>" class="category-card">
+            <%= cat %>
+          </a>
+        <% }) %>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>منتجات مميزة</h2>
+      <div class="products-grid">
+        <% products.forEach(p => { %>
+          <a href="/product/<%= p.id %>" class="product-card">
+            <img src="<%= p.images[0] %>" alt="<%= p.name %>">
+            <h3><%= p.name %></h3>
+            <div class="price">
+              <span class="current"><%= p.price.toLocaleString() %> د.ج</span>
+              <% if (p.oldPrice) { %>
+                <span class="old"><%= p.oldPrice.toLocaleString() %> د.ج</span>
+              <% } %>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    </section>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>

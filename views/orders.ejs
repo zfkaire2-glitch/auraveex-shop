@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>طلباتي - AURA VEEX</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .badge { display: inline-block; padding: 0.25rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
+    .badge-new { background: #e3f2fd; color: #1565c0; }
+    .badge-call1 { background: #fff3e0; color: #e65100; }
+    .badge-call2 { background: #fff3e0; color: #e65100; }
+    .badge-confirmed { background: #e8f5e9; color: #2e7d32; }
+    .badge-cancelled { background: #fbe9e7; color: #c62828; }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main class="section">
+    <h1>طلباتي</h1>
+    <% if (orders.length === 0) { %>
+      <p class="empty">لا توجد طلبات بعد.</p>
+    <% } else { %>
+      <% orders.forEach(order => { %>
+        <div class="order-card">
+          <div class="order-header">
+            <span>الطلب: <%= order.id %></span>
+            <span class="badge badge-<%=
+              order.status === 'جديد' ? 'new' :
+              order.status === 'اتصال 1' ? 'call1' :
+              order.status === 'اتصال 2' ? 'call2' :
+              order.status === 'مؤكد' ? 'confirmed' :
+              order.status === 'ملغي' ? 'cancelled' : 'new'
+            %>"><%= order.status %></span>
+          </div>
+          <div class="order-body">
+            <div style="margin-bottom:0.3rem;">📍 <span><%= order.address %><%= order.commune ? '، ' + order.commune : '' %></span></div>
+            <% order.items.forEach(item => { %>
+              <div><%= item.name %> x<%= item.quantity %> — <%= (item.price * item.quantity).toLocaleString() %> د.ج</div>
+            <% }) %>
+          </div>
+            <div class="order-footer">
+            <span><%= order.deliveryPrice ? 'المجموع (مع التوصيل): ' : 'المجموع: ' %><%= order.total.toLocaleString() %> د.ج</span>
+            <% if (order.trackingCode) { %>
+              <a href="https://track.yalidine.app/<%= order.trackingCode %>" target="_blank" class="track-btn">📦 تتبع الطرد</a>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>

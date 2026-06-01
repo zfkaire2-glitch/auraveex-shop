@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= product ? 'تعديل' : 'إضافة' %> منتج - AURA VEEX</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-sidebar { width: 220px; background: #1a1a1a; color: #fff; padding: 2rem 1rem; }
+    .admin-sidebar h2 { font-size: 1.2rem; margin-bottom: 2rem; }
+    .admin-sidebar a { display: block; color: #ccc; padding: 0.6rem 0; border-bottom: 1px solid #333; }
+    .admin-sidebar a:hover { color: #fff; }
+    .admin-content { flex: 1; padding: 2rem; background: #e9ecef; }
+    .admin-content h1 { font-size: 1.5rem; margin-bottom: 1.5rem; text-align: right; }
+    .product-form { max-width: 600px; background: #f7f7f7; border: 1px solid #d1d5db; border-radius: 12px; padding: 2rem; }
+    .product-form label { display: block; margin-bottom: 0.3rem; font-weight: 600; color: #333; font-size: 1.05rem; }
+    .product-form input, .product-form textarea, .product-form select { width: 100%; padding: 0.85rem; margin-bottom: 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1.1rem; background: #f0f0f0; }
+    .product-form textarea { resize: vertical; }
+    .product-form .hint { font-size: 0.8rem; color: #888; margin-top: -0.8rem; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div class="admin-sidebar">
+      <h2>AURA VEEX</h2>
+      <a href="/admin">📊 المنتجات</a>
+      <a href="/admin/products/add">➕ إضافة منتج</a>
+      <a href="/">🏠 المتجر</a>
+      <a href="/admin/logout">🚪 خروج</a>
+    </div>
+    <div class="admin-content">
+      <h1><%= product ? '✏️ تعديل المنتج' : '➕ إضافة منتج جديد' %></h1>
+      <form action="<%= product ? '/admin/products/edit/' + product.id : '/admin/products/add' %>" method="POST" enctype="multipart/form-data" class="product-form">
+        <label>الاسم</label>
+        <input type="text" name="name" value="<%= product ? product.name : '' %>" required>
+
+        <label>السعر (د.ج)</label>
+        <input type="number" name="price" value="<%= product ? product.price : '' %>" required>
+
+        <label>السعر القديم (اختياري)</label>
+        <input type="number" name="oldPrice" value="<%= product && product.oldPrice ? product.oldPrice : '' %>">
+
+        <label>القسم</label>
+        <input type="text" name="category" value="<%= product ? product.category : '' %>" required>
+
+        <label>الوصف</label>
+        <textarea name="description" rows="4" required><%= product ? product.description : '' %></textarea>
+
+        <label>المقاسات (مفصولة بفاصلة)</label>
+        <input type="text" name="sizes" value="<%= product ? product.sizes.join(', ') : 'S, M, L, XL, XXL' %>">
+        <p class="hint">مثال: S, M, L, XL, XXL</p>
+
+        <label>الألوان (مفصولة بفاصلة)</label>
+        <input type="text" name="colors" value="<%= product ? product.colors.join(', ') : '' %>">
+        <p class="hint">مثال: أسود, أبيض, رمادي</p>
+
+        <label>الصور (اختر عدة)</label>
+        <input type="file" name="images" accept="image/*" multiple>
+        <% if (product && product.images && product.images.length > 0) { %>
+          <p style="margin-bottom:1rem">الحالية:
+            <% product.images.forEach(img => { %>
+              <img src="<%= img %>" style="width:60px;height:60px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-left:4px;">
+            <% }) %>
+          </p>
+        <% } %>
+
+        <button type="submit" class="btn"><%= product ? '💾 حفظ التعديلات' : '➕ إضافة المنتج' %></button>
+        <a href="/admin" class="btn" style="background:#666;margin-right:0.5rem">❌ إلغاء</a>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إتمام الشراء - AURA VEEX</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main class="section">
+    <h1>إتمام الشراء</h1>
+    <div class="checkout-layout">
+      <form action="/checkout" method="POST" class="checkout-form" onsubmit="return validateForm()">
+        <div class="form-group">
+          <label>الاسم الشخصي *</label>
+          <input type="text" name="firstName" required>
+        </div>
+        <div class="form-group">
+          <label>اللقب *</label>
+          <input type="text" name="lastName" required>
+        </div>
+        <div class="form-group">
+          <label>رقم الهاتف *</label>
+          <input type="tel" name="phone" required pattern="0[0-9]{9}" title="أدخل رقم هاتف صحيح يبدأ بـ 0 (مثال: 0555123456)">
+        </div>
+        <div class="form-group">
+          <label>الولاية *</label>
+          <select name="wilaya" id="wilayaSelect" required>
+            <option value="">اختر ولايتك</option>
+            <% wilayas.forEach(w => { %>
+              <option value="<%= w.id %>"><%= w.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>البلدية *</label>
+          <select name="commune" id="communeSelect" required>
+            <option value="">اختر الولاية أولاً</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>العنوان الكامل *</label>
+          <textarea name="address" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-lg">تأكيد الطلب</button>
+      </form>
+      <div class="checkout-summary">
+        <h3>ملخص الطلب</h3>
+        <% cart.forEach(item => { %>
+          <div class="summary-item">
+            <span><%= item.name %> x<%= item.quantity %></span>
+            <span><%= (item.price * item.quantity).toLocaleString() %> د.ج</span>
+          </div>
+        <% }) %>
+        <div class="summary-item" id="deliveryRow" style="display:none;">
+          <span>التوصيل (لباب المنزل)</span>
+          <span id="deliveryPriceDisplay">0 د.ج</span>
+        </div>
+        <div class="summary-total">
+          <span>المجموع</span>
+          <span id="totalDisplay"><%= subtotal.toLocaleString() %> د.ج</span>
+        </div>
+        <p class="delivery-note">🚚 التوصيل لباب المنزل عبر Yalidine — الدفع عند الاستلام</p>
+      </div>
+    </div>
+  </main>
+  <script>
+    const communes = <%- JSON.stringify(communes) %>;
+    const prices = <%- JSON.stringify(deliveryPrices) %>;
+    const subtotal = <%= subtotal %>;
+
+    function validateForm() {
+      const fields = [
+        { el: document.querySelector('[name="firstName"]'), label: 'الاسم الشخصي' },
+        { el: document.querySelector('[name="lastName"]'), label: 'اللقب' },
+        { el: document.querySelector('[name="phone"]'), label: 'رقم الهاتف' },
+        { el: document.querySelector('[name="wilaya"]'), label: 'الولاية' },
+        { el: document.querySelector('[name="commune"]'), label: 'البلدية' },
+        { el: document.querySelector('[name="address"]'), label: 'العنوان' },
+      ];
+      const missing = fields.filter(f => !f.el.value.trim());
+      if (missing.length) {
+        alert('الرجاء ملء جميع الحقول المطلوبة:\n' + missing.map(f => '- ' + f.label).join('\n'));
+        return false;
+      }
+      const phone = document.querySelector('[name="phone"]');
+      if (!/^0[0-9]{9}$/.test(phone.value.trim())) {
+        alert('رقم الهاتف غير صحيح. يجب أن يبدأ بـ 0 ويتكون من 10 أرقام (مثال: 0555123456)');
+        phone.focus();
+        return false;
+      }
+      return true;
+    }
+
+    document.getElementById('wilayaSelect').addEventListener('change', function() {
+      const sel = document.getElementById('communeSelect');
+      sel.innerHTML = '<option value="">اختر بلديتك</option>';
+      const list = communes[this.value];
+      if (list) {
+        list.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          sel.appendChild(opt);
+        });
+        sel.disabled = false;
+      } else {
+        sel.innerHTML = '<option value="">لا توجد بلديات متاحة</option>';
+        sel.disabled = true;
+      }
+      const p = prices[this.value];
+      const row = document.getElementById('deliveryRow');
+      const dp = document.getElementById('deliveryPriceDisplay');
+      const tot = document.getElementById('totalDisplay');
+      if (p && p.domicile) {
+        row.style.display = 'flex';
+        dp.textContent = p.domicile.toLocaleString() + ' د.ج';
+        tot.textContent = (subtotal + p.domicile).toLocaleString() + ' د.ج';
+      } else {
+        row.style.display = 'none';
+        tot.textContent = subtotal.toLocaleString() + ' د.ج';
+      }
+    });
+  </script>
+  <%- include('partials/footer') %>
+</body>
+</html>

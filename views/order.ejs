@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تم الطلب - AURA VEEX</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main class="section">
+    <div class="order-success">
+      <h1>شكراً لك على طلبك ✅</h1>
+      <p>رقم الطلب: <strong><%= order.id %></strong></p>
+      <p style="font-size:1.15rem;margin-top:1rem;">فريقنا رايح يتصل بك من <strong>9 صباحاً حتى 22 ليلاً</strong> باش ياكد معاك الطلبية 🚀</p>
+      <p style="font-size:1.1rem;margin-bottom:1.5rem;">📞 رقم الفريق: <strong>0551600923</strong></p>
+      <% if (order.trackingCode) { %>
+        <p>رمز التتبع Yalidine: <strong><%= order.trackingCode %></strong></p>
+      <% } %>
+      <h3>تفاصيل الطلب</h3>
+      <div class="order-details">
+        <div style="margin-bottom:0.9rem;color:#555;line-height:2;">
+          <div>👤 <%= order.firstName %> <%= order.lastName %></div>
+          <div>📞 <%= order.phone %></div>
+          <div>📍 <%= order.address %><%= order.commune ? '، ' + order.commune : '' %>، <%= order.wilaya %></div>
+        </div>
+        <% order.items.forEach(item => { %>
+          <div class="order-item">
+            <span><%= item.name %> x<%= item.quantity %></span>
+            <span><%= (item.price * item.quantity).toLocaleString() %> د.ج</span>
+          </div>
+        <% }) %>
+        <% if (order.deliveryPrice) { %>
+          <div class="order-item">
+            <span>التوصيل (لباب المنزل)</span>
+            <span><%= order.deliveryPrice.toLocaleString() %> د.ج</span>
+          </div>
+        <% } %>
+        <div class="order-total">
+          <span>المجموع الكلي</span>
+          <span><%= order.total.toLocaleString() %> د.ج</span>
+        </div>
+      </div>
+      <p style="margin-top:1rem;color:#555;font-size:0.95rem;">🚚 سيتم توصيل طلبك لباب المنزل عبر Yalidine — الدفع عند الاستلام</p>
+      <a href="/products" class="btn">متابعة التسوق</a>
+    </div>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>

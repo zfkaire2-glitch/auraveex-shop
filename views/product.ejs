@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= product.name %> - AURA VEEX</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main class="product-main">
+    <div class="product-container">
+      <div class="product-gallery">
+        <div class="main-image" onclick="openLightbox()" style="cursor:zoom-in">
+          <div class="image-wrapper">
+            <img src="<%= product.images[0] %>" alt="<%= product.name %>" id="mainImg">
+          </div>
+        </div>
+        <% if (product.images.length > 1) { %>
+          <div class="thumbnails">
+            <% product.images.forEach((img, i) => { %>
+              <img src="<%= img %>" alt="" class="thumb <%= i === 0 ? 'active' : '' %>" onclick="switchImage(this.src, this)">
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+      <div class="product-info">
+        <p class="product-vendor"><%= product.category %></p>
+        <h1 class="product-title"><%= product.name %></h1>
+        <div class="product-price">
+          <span class="price-current"><%= product.price.toLocaleString() %> د.ج</span>
+          <% if (product.oldPrice) { %>
+            <span class="price-old"><%= product.oldPrice.toLocaleString() %> د.ج</span>
+          <% } %>
+        </div>
+        <div class="product-description">
+          <%- product.description.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>') %>
+        </div>
+        <form action="/cart/add" method="POST" class="product-form">
+          <input type="hidden" name="id" value="<%= product.id %>">
+          <div class="form-row">
+            <label for="size">المقاس</label>
+            <div class="size-options">
+              <% product.sizes.forEach(s => { %>
+                <label class="size-btn">
+                  <input type="radio" name="size" value="<%= s %>" <%= s === product.sizes[0] ? 'checked' : '' %> required>
+                  <span><%= s %></span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+          <button type="submit" class="btn-add">أضف إلى السلة</button>
+        </form>
+        <div class="product-extras">
+          <div class="extra-item">✅ الدفع عند الاستلام</div>
+          <div class="extra-item">🚚 التوصيل عبر Yalidine لباب المنزل</div>
+          <div class="extra-item">🔄 الإرجاع خلال 7 أيام</div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <%- include('partials/footer') %>
+
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <span class="lightbox-close">&times;</span>
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+      <img src="" id="lightboxImg" alt="">
+      <div class="lightbox-nav">
+        <button class="lightbox-btn" onclick="changeImage(-1)">&#10094;</button>
+        <span id="lightboxCounter"></span>
+        <button class="lightbox-btn" onclick="changeImage(1)">&#10095;</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const images = [
+      <% product.images.forEach((img, i) => { %>
+        '<%= img %>'<%= i < product.images.length - 1 ? ',' : '' %>
+      <% }) %>
+    ];
+    let currentIdx = 0;
+
+    function openLightbox() {
+      currentIdx = images.indexOf(document.getElementById('mainImg').src);
+      showLightboxImage();
+      document.getElementById('lightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function showLightboxImage() {
+      document.getElementById('lightboxImg').src = images[currentIdx];
+      document.getElementById('lightboxCounter').textContent = (currentIdx + 1) + ' / ' + images.length;
+    }
+
+    function changeImage(dir) {
+      currentIdx = (currentIdx + dir + images.length) % images.length;
+      showLightboxImage();
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (!document.getElementById('lightbox').classList.contains('open')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') changeImage(-1);
+      if (e.key === 'ArrowRight') changeImage(1);
+    });
+
+    function switchImage(src, thumb) {
+      const wrapper = document.querySelector('.image-wrapper');
+      const img = document.getElementById('mainImg');
+      wrapper.classList.add('fade-out');
+      setTimeout(() => {
+        img.src = src;
+        wrapper.classList.remove('fade-out');
+        wrapper.classList.add('fade-in');
+        setTimeout(() => wrapper.classList.remove('fade-in'), 300);
+      }, 200);
+      document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+      thumb.classList.add('active');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المنتجات - AURA VEEX</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main class="section">
+    <h1>المنتجات</h1>
+    <div class="category-filter">
+      <a href="/products" class="<%= !selectedCategory ? 'active' : '' %>">الكل</a>
+      <% categories.forEach(cat => { %>
+        <a href="/products?category=<%= encodeURIComponent(cat) %>" class="<%= selectedCategory === cat ? 'active' : '' %>"><%= cat %></a>
+      <% }) %>
+    </div>
+    <div class="products-grid">
+      <% products.forEach(p => { %>
+        <a href="/product/<%= p.id %>" class="product-card">
+          <img src="<%= p.images[0] %>" alt="<%= p.name %>">
+          <h3><%= p.name %></h3>
+          <div class="price">
+            <span class="current"><%= p.price.toLocaleString() %> د.ج</span>
+            <% if (p.oldPrice) { %>
+              <span class="old"><%= p.oldPrice.toLocaleString() %> د.ج</span>
+            <% } %>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+    <% if (products.length === 0) { %>
+      <p class="empty">لا توجد منتجات في هذا القسم.</p>
+    <% } %>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>

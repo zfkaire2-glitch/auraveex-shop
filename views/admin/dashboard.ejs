@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - AURA VEEX</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-sidebar { width: 220px; background: #1a1a1a; color: #fff; padding: 2rem 1rem; }
+    .admin-sidebar h2 { font-size: 1.2rem; margin-bottom: 2rem; }
+    .admin-sidebar a { display: block; color: #ccc; padding: 0.6rem 0; border-bottom: 1px solid #333; }
+    .admin-sidebar a:hover { color: #fff; }
+    .admin-content { flex: 1; padding: 2rem; background: #e9ecef; }
+    .admin-content h1 { font-size: 1.8rem; margin-bottom: 1.5rem; text-align: right; }
+    .admin-table { width: 100%; border-collapse: collapse; background: #f7f7f7; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; font-size: 1.05rem; }
+    .admin-table th, .admin-table td { padding: 0.9rem 1.2rem; text-align: right; border-bottom: 1px solid #d1d5db; }
+    .admin-table th { background: #1a1a1a; color: #fff; font-size: 1.1rem; }
+    .admin-table img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
+    .admin-actions { display: flex; gap: 0.5rem; }
+    .admin-actions .btn-sm { font-size: 0.9rem; padding: 0.4rem 1rem; }
+    .btn-danger { background: #c62828; }
+    .btn-danger:hover { background: #b71c1c; }
+    .add-btn { margin-bottom: 1rem; display: inline-block; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div class="admin-sidebar">
+      <h2>AURA VEEX</h2>
+      <a href="/admin">📊 المنتجات</a>
+      <a href="/admin/orders">📋 الطلبات</a>
+      <a href="/admin/products/add">➕ إضافة منتج</a>
+      <a href="/">🏠 المتجر</a>
+      <a href="/admin/logout">🚪 خروج</a>
+    </div>
+    <div class="admin-content">
+      <h1>📦 المنتجات (<%= products.length %>)</h1>
+      <a href="/admin/products/add" class="btn add-btn">➕ إضافة منتج جديد</a>
+      <table class="admin-table">
+        <thead>
+          <tr><th>صورة</th><th>الاسم</th><th>السعر</th><th>القسم</th><th>المقاسات</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% products.forEach(p => { %>
+            <tr>
+              <td><img src="<%= p.images[0] || '/placeholder.png' %>" alt=""></td>
+              <td><%= p.name %></td>
+              <td><%= p.price.toLocaleString() %> د.ج</td>
+              <td><%= p.category %></td>
+              <td><%= p.sizes.join(', ') %></td>
+              <td class="admin-actions">
+                <a href="/admin/products/edit/<%= p.id %>" class="btn-sm">✏️</a>
+                <form action="/admin/products/delete/<%= p.id %>" method="POST" onsubmit="return confirm('حذف هذا المنتج؟')">
+                  <button type="submit" class="btn-sm btn-danger">🗑️</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
