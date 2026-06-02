@@ -1,20 +1,53 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>المنتجات - AURA VEEX</title>
-  <link rel="stylesheet" href="/style.css">
+  <%- include('partials/head') %>
 </head>
 <body>
   <%- include('partials/header') %>
   <main class="section">
+    <div class="breadcrumbs">
+      <a href="/">الرئيسية</a>
+      <span>›</span>
+      <span>المنتجات</span>
+    </div>
     <h1>المنتجات</h1>
     <div class="category-filter">
       <a href="/products" class="<%= !selectedCategory ? 'active' : '' %>">الكل</a>
       <% categories.forEach(cat => { %>
         <a href="/products?category=<%= encodeURIComponent(cat) %>" class="<%= selectedCategory === cat ? 'active' : '' %>"><%= cat %></a>
       <% }) %>
+    </div>
+    <div class="advanced-filters">
+      <form method="GET" action="/products" class="filter-row">
+        <% if (selectedCategory) { %>
+          <input type="hidden" name="category" value="<%= selectedCategory %>">
+        <% } %>
+        <% if (selectedSize) { %>
+          <input type="hidden" name="size" value="<%= selectedSize %>">
+        <% } %>
+        <div class="filter-group">
+          <label>من</label>
+          <input type="number" name="minPrice" placeholder="السعر من" value="<%= minPrice %>" min="0">
+        </div>
+        <div class="filter-group">
+          <label>إلى</label>
+          <input type="number" name="maxPrice" placeholder="السعر إلى" value="<%= maxPrice %>" min="0">
+        </div>
+        <div class="filter-group">
+          <label>المقاس</label>
+          <select name="size">
+            <option value="">كل المقاسات</option>
+            <% allSizes.forEach(s => { %>
+              <option value="<%= s %>" <%= selectedSize === s ? 'selected' : '' %>><%= s %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button type="submit" class="btn-filter">تصفية</button>
+          <a href="/products<%= selectedCategory ? '?category=' + encodeURIComponent(selectedCategory) : '' %>" class="btn-filter-clear">إلغاء</a>
+        </div>
+      </form>
     </div>
     <div class="products-grid">
       <% products.forEach(p => { %>

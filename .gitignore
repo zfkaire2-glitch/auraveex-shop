@@ -1,6 +1,9 @@
 node_modules/
 .env
-*.log
-vaulted-sector-*.json
-start-hidden.vbs
+error.log
+server.log
 cookies*.txt
+start-hidden.vbs
+.vscode/
+*.json.old
+vaulted-sector-*.json

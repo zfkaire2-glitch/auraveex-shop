@@ -2,16 +2,25 @@ import 'dotenv/config';
 import express from 'express';
 import session from 'express-session';
 import multer from 'multer';
+import cluster from 'cluster';
+import os from 'os';
 import { v4 as uuidv4 } from 'uuid';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { existsSync } from 'fs';
+import { existsSync, appendFileSync } from 'fs';
+import compression from 'compression';
+import PDFDocument from 'pdfkit';
+import ExcelJS from 'exceljs';
 import { initSheets, saveOrder, isSheetsReady } from './sheets.js';
 import communes from './data/communes.json' with { type: 'json' };
 import { calculateDelivery, createShipment, trackShipment } from './yalidine.js';
 import * as store from './store.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const PORT = process.env.PORT || 3000;
+
+function startWorker() {
+  initSheets();
 
 const storage = multer.diskStorage({
   destination: join(__dirname, 'public', 'uploads'),
@@ -25,7 +34,8 @@ const upload = multer({ storage });
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(join(__dirname, 'public')));
+app.use(compression());
+app.use(express.static(join(__dirname, 'public'), { maxAge: '1d' }));
 app.set('view engine', 'ejs');
 app.set('views', join(__dirname, 'views'));
 
@@ -34,6 +44,14 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
 }));
+
+// ---------- Validation helper ----------
+
+function validateRequired(fields, body) {
+  const missing = fields.filter(f => !body[f] || !body[f].toString().trim());
+  if (missing.length > 0) return 'الحقول التالية مطلوبة: ' + missing.join(', ');
+  return null;
+}
 
 const YALIDINE_API_KEY = process.env.YALIDINE_API_KEY || '';
 const YALIDINE_PARTNER_TOKEN = process.env.YALIDINE_PARTNER_TOKEN || '';
@@ -123,7 +141,46 @@ const DELIVERY_PRICES = {
   "58": { domicile: 800, stopdesk: null },
 };
 
-initSheets();
+// ---------- Keep-alive (Render, UptimeRobot) ----------
+
+app.get('/ping', (_req, res) => res.send('pong'));
+
+// ---------- Dynamic sitemap ----------
+
+app.get('/sitemap.xml', (_req, res) => {
+  const products = store.getProducts();
+  const urls = [
+    { loc: '/', priority: '1.0' },
+    { loc: '/products', priority: '0.9' },
+    { loc: '/how', priority: '0.7' },
+    { loc: '/track', priority: '0.6' },
+    { loc: '/cart', priority: '0.5' },
+    { loc: '/login', priority: '0.4' },
+    { loc: '/signup', priority: '0.4' },
+  ];
+  products.forEach(p => {
+    urls.push({ loc: '/product/' + p.id, priority: '0.8' });
+  });
+  const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    urls.map(u => '  <url><loc>https://auraveex-shop.onrender.com' + u.loc + '</loc><priority>' + u.priority + '</priority></url>').join('\n') +
+    '\n</urlset>';
+  res.header('Content-Type', 'application/xml');
+  res.send(xml);
+});
+
+app.use((_req, _res, next) => {
+  _res.locals.customerPhone = _req.session.customerPhone || null;
+  _res.locals.cartCount = (_req.session.cart || []).reduce((a, i) => a + i.quantity, 0);
+  _res.locals.currentPath = _req.path;
+  _res.locals.pageTitle = null;
+  _res.locals.pageDescription = null;
+  _res.locals.pageKeywords = null;
+  _res.locals.ogTitle = null;
+  _res.locals.ogDescription = null;
+  _res.locals.ogImage = null;
+  _res.locals.canonicalUrl = null;
+  next();
+});
 
 function requireAdmin(req, res, next) {
   if (req.session.admin) return next();
@@ -177,6 +234,8 @@ app.get('/', (_req, res) => {
   const categories = [...new Set(products.map(p => p.category))];
   const featured = products.slice(0, 4);
   res.render('index', {
+    pageTitle: 'الرئيسية',
+    pageDescription: 'AURA VEEX — متجر ألبسة جزائرية متخصص في الأطقم الأوفرサイズ والستريت وير المستوردة. جودة عالية، أسعار منافسة، توصيل عبر Yalidine لباب المنزل.',
     products: featured,
     categories,
     cartCount: (_req.session.cart || []).reduce((a, i) => a + i.quantity, 0),
@@ -186,12 +245,25 @@ app.get('/', (_req, res) => {
 app.get('/products', (_req, res) => {
   const products = store.getProducts();
   const category = _req.query.category;
-  const filtered = category ? products.filter(p => p.category === category) : products;
+  const minPrice = parseFloat(_req.query.minPrice) || 0;
+  const maxPrice = parseFloat(_req.query.maxPrice) || Infinity;
+  const size = _req.query.size || '';
+  let filtered = category ? products.filter(p => p.category === category) : products;
+  filtered = filtered.filter(p => p.price >= minPrice && p.price <= maxPrice);
+  if (size) filtered = filtered.filter(p => p.sizes && p.sizes.includes(size));
   const categories = [...new Set(products.map(p => p.category))];
+  const allSizes = [...new Set(products.flatMap(p => p.sizes || []))];
+  const catDesc = category ? ' — ' + category : '';
   res.render('products', {
+    pageTitle: 'المنتجات' + catDesc,
+    pageDescription: 'تصفح مجموعة AURA VEEX من الأطقم الأوفرサイ즈 والستريت وير المستوردة' + (category ? ' في قسم ' + category : ''),
     products: filtered,
     categories,
+    allSizes,
     selectedCategory: category || null,
+    minPrice: _req.query.minPrice || '',
+    maxPrice: _req.query.maxPrice || '',
+    selectedSize: size,
     cartCount: (_req.session.cart || []).reduce((a, i) => a + i.quantity, 0),
   });
 });
@@ -199,8 +271,17 @@ app.get('/products', (_req, res) => {
 app.get('/product/:id', (_req, res) => {
   const product = store.getProduct(_req.params.id);
   if (!product) return res.status(404).send('Product not found');
+  const all = store.getProducts();
+  const suggested = all
+    .filter(p => p.category === product.category && p.id !== product.id)
+    .slice(0, 4);
   res.render('product', {
+    pageTitle: product.name,
+    pageDescription: (product.description || '').slice(0, 160),
+    ogImage: product.images && product.images[0] ? product.images[0] : '/uploads/hero-eagle.jpg',
+    canonicalUrl: 'https://auraveex-shop.onrender.com/product/' + product.id,
     product,
+    suggested,
     cartCount: (_req.session.cart || []).reduce((a, i) => a + i.quantity, 0),
   });
 });
@@ -210,8 +291,9 @@ app.post('/cart/add', (_req, res) => {
   if (!product) return res.status(404).json({ error: 'not found' });
   if (!_req.session.cart) _req.session.cart = [];
   const existing = _req.session.cart.find(i => i.id === product.id && i.size === _req.body.size);
+  const qty = parseInt(_req.body.quantity) || 1;
   if (existing) {
-    existing.quantity += 1;
+    existing.quantity += qty;
   } else {
     _req.session.cart.push({
       id: product.id,
@@ -219,7 +301,7 @@ app.post('/cart/add', (_req, res) => {
       price: product.price,
       image: product.images[0],
       size: _req.body.size || product.sizes[0],
-      quantity: 1,
+      quantity: qty,
     });
   }
   res.redirect('/cart');
@@ -243,6 +325,7 @@ app.get('/cart', (_req, res) => {
   const cart = _req.session.cart || [];
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   res.render('cart', {
+    pageTitle: 'سلة التسوق',
     cart, subtotal,
     cartCount: cart.reduce((a, i) => a + i.quantity, 0),
   });
@@ -253,6 +336,7 @@ app.get('/checkout', (_req, res) => {
   if (cart.length === 0) return res.redirect('/products');
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   res.render('checkout', {
+    pageTitle: 'إتمام الشراء',
     cart, subtotal, wilayas: WILAYAS, communes,
     deliveryPrices: DELIVERY_PRICES,
     cartCount: cart.reduce((a, i) => a + i.quantity, 0),
@@ -262,6 +346,15 @@ app.get('/checkout', (_req, res) => {
 app.post('/checkout', async (_req, res) => {
   const cart = _req.session.cart || [];
   if (cart.length === 0) return res.redirect('/products');
+  const validationError = validateRequired(['firstName', 'lastName', 'phone', 'wilaya', 'commune', 'address'], _req.body);
+  if (validationError) {
+    const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+    return res.render('checkout', { pageTitle: 'إتمام الشراء', error: validationError, cart, subtotal, wilayas: WILAYAS, communes, deliveryPrices: DELIVERY_PRICES, cartCount: cart.reduce((a, i) => a + i.quantity, 0) });
+  }
+  if (!/^0[0-9]{9}$/.test(_req.body.phone)) {
+    const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+    return res.render('checkout', { pageTitle: 'إتمام الشراء', error: 'رقم هاتف غير صحيح', cart, subtotal, wilayas: WILAYAS, communes, deliveryPrices: DELIVERY_PRICES, cartCount: cart.reduce((a, i) => a + i.quantity, 0) });
+  }
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const wilayaId = parseInt(_req.body.wilaya);
   const dp = DELIVERY_PRICES[wilayaId];
@@ -299,13 +392,14 @@ app.post('/checkout', async (_req, res) => {
 
 app.get('/orders', (_req, res) => {
   res.render('orders', {
+    pageTitle: 'طلباتي',
     orders: _req.session.orders || [],
     cartCount: 0,
   });
 });
 
 app.get('/track', (_req, res) => {
-  res.render('track', { order: null, query: '', error: null, cartCount: 0 });
+  res.render('track', { pageTitle: 'تتبع طلبك', order: null, query: '', error: null, cartCount: 0 });
 });
 
 app.post('/track', (_req, res) => {
@@ -313,6 +407,7 @@ app.post('/track', (_req, res) => {
   const orders = store.getOrders();
   const order = orders.find(o => o.phone === query);
   res.render('track', {
+    pageTitle: 'تتبع طلبك',
     order: order || null,
     query,
     error: order ? null : 'طلبك مازال قيد التحضير',
@@ -321,7 +416,70 @@ app.post('/track', (_req, res) => {
 });
 
 app.get('/how', (_req, res) => {
-  res.render('how', { cartCount: (_req.session.cart || []).reduce((a, i) => a + i.quantity, 0) });
+  res.render('how', { pageTitle: 'كيفية العمل', cartCount: (_req.session.cart || []).reduce((a, i) => a + i.quantity, 0) });
+});
+
+// ---------- Customer Auth ----------
+
+function cartCount(req) {
+  return (req.session.cart || []).reduce((a, i) => a + i.quantity, 0);
+}
+
+app.get('/signup', (_req, res) => {
+  res.render('signup', { pageTitle: 'إنشاء حساب', error: null, cartCount: cartCount(_req) });
+});
+
+app.post('/signup', (_req, res) => {
+  const { phone, password, firstName, lastName } = _req.body;
+  if (!phone || !password) return res.render('signup', { pageTitle: 'إنشاء حساب', error: 'رقم الهاتف وكلمة السر مطلوبان', cartCount: cartCount(_req) });
+  const existing = store.findCustomer(phone);
+  if (existing) return res.render('signup', { pageTitle: 'إنشاء حساب', error: 'هذا الرقم مسجل بالفعل', cartCount: cartCount(_req) });
+  store.registerCustomer({ phone, password, firstName, lastName });
+  _req.session.customerPhone = phone;
+  res.redirect('/account');
+});
+
+app.get('/login', (_req, res) => {
+  res.render('login', { pageTitle: 'تسجيل الدخول', error: null, cartCount: cartCount(_req) });
+});
+
+app.post('/login', (_req, res) => {
+  const { phone, password } = _req.body;
+  const customer = store.loginCustomer(phone, password);
+  if (!customer) return res.render('login', { pageTitle: 'تسجيل الدخول', error: 'رقم الهاتف أو كلمة السر خطأ', cartCount: cartCount(_req) });
+  _req.session.customerPhone = phone;
+  res.redirect('/account');
+});
+
+app.get('/logout', (_req, res) => {
+  _req.session.customerPhone = null;
+  res.redirect('/');
+});
+
+app.get('/account', (_req, res) => {
+  if (!_req.session.customerPhone) return res.redirect('/login');
+  const customer = store.findCustomer(_req.session.customerPhone);
+  if (!customer) { _req.session.customerPhone = null; return res.redirect('/login'); }
+  const orders = store.getCustomerOrders(_req.session.customerPhone);
+  res.render('account', { pageTitle: 'حسابي', customer, orders, cartCount: cartCount(_req) });
+});
+
+app.post('/account/address', (_req, res) => {
+  if (!_req.session.customerPhone) return res.redirect('/login');
+  store.addCustomerAddress(_req.session.customerPhone, {
+    label: _req.body.label || 'الرئيسي',
+    wilaya: _req.body.wilaya,
+    commune: _req.body.commune,
+    address: _req.body.address,
+  });
+  res.redirect('/account');
+});
+
+// ---------- Admin Stats ----------
+
+app.get('/admin/stats', requireAdmin, (_req, res) => {
+  const stats = store.getStats();
+  res.render('admin/stats', { stats });
 });
 
 app.get('/api/tracking/:code', async (_req, res) => {
@@ -404,6 +562,13 @@ app.get('/admin/orders', requireAdmin, (_req, res) => {
 
 app.post('/admin/orders/status', requireAdmin, (_req, res) => {
   store.updateOrderStatus(_req.body.id, _req.body.status);
+  const order = store.getOrders().find(o => o.id === _req.body.id);
+  if (order && YALIDINE_API_KEY) {
+    try {
+      const msg = 'مرحباً ' + order.firstName + '! تم تحديث حالة طلبك ' + order.id + ' إلى: ' + order.status;
+      fetch('https://wa.me/213551600923?text=' + encodeURIComponent(msg));
+    } catch (e) { /* ignore */ }
+  }
   res.redirect('/admin/orders');
 });
 
@@ -423,7 +588,133 @@ app.post('/admin/orders/delete-batch', requireAdmin, (_req, res) => {
   res.redirect('/admin/orders');
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`E-commerce store running on http://localhost:${PORT}`);
+// ---------- PDF Invoice ----------
+
+app.get('/admin/orders/:id/invoice', requireAdmin, (_req, res) => {
+  const orders = store.getOrders();
+  const order = orders.find(o => o.id === _req.params.id);
+  if (!order) return res.status(404).send('Order not found');
+
+  const doc = new PDFDocument({ size: 'A4', margin: 50 });
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', 'attachment; filename=invoice-' + order.id + '.pdf');
+  doc.pipe(res);
+
+  doc.fontSize(24).font('Helvetica-Bold').text('AURA VEEX', { align: 'center' });
+  doc.fontSize(10).font('Helvetica').text('متجر ألبسة جزائرية', { align: 'center' });
+  doc.moveDown(0.5);
+  doc.fontSize(12).font('Helvetica-Bold').text('فاتورة - ' + order.id, { align: 'center' });
+  doc.moveDown();
+
+  doc.fontSize(10).font('Helvetica');
+  doc.text('التاريخ: ' + new Date(order.createdAt || Date.now()).toLocaleDateString('ar-DZ'));
+  doc.text('العميل: ' + (order.firstName || '') + ' ' + (order.lastName || ''));
+  doc.text('الهاتف: ' + (order.phone || ''));
+  doc.text('العنوان: ' + (order.address || '') + (order.commune ? '، ' + order.commune : '') + (order.wilaya ? '، ' + order.wilaya : ''));
+  doc.moveDown();
+
+  doc.fontSize(10).font('Helvetica-Bold');
+  const headerX = 50;
+  doc.text('المنتج', headerX, doc.y, { width: 250 });
+  doc.text('الكمية', headerX + 260, doc.y, { width: 60, align: 'center' });
+  doc.text('السعر', headerX + 330, doc.y, { width: 100, align: 'left' });
+  doc.moveDown(0.3);
+  doc.moveTo(headerX, doc.y).lineTo(525, doc.y).stroke();
+  doc.moveDown(0.3);
+
+  doc.font('Helvetica');
+  if (order.items) {
+    order.items.forEach(item => {
+      doc.text(item.name || '', headerX, doc.y, { width: 250 });
+      doc.text('x' + (item.quantity || 0), headerX + 260, doc.y - 15, { width: 60, align: 'center' });
+      doc.text((item.price || 0).toLocaleString() + ' د.ج', headerX + 330, doc.y - 15, { width: 100, align: 'left' });
+    });
+  }
+  doc.moveDown();
+  doc.moveTo(headerX, doc.y).stroke();
+  doc.moveDown(0.5);
+  doc.font('Helvetica-Bold');
+  doc.text('المجموع الفرعي: ' + (order.subtotal || 0).toLocaleString() + ' د.ج', { align: 'left' });
+  if (order.deliveryPrice) doc.text('التوصيل: ' + order.deliveryPrice.toLocaleString() + ' د.ج', { align: 'left' });
+  doc.fontSize(14).text('المجموع: ' + (order.total || 0).toLocaleString() + ' د.ج', { align: 'left' });
+  doc.fontSize(9).font('Helvetica').fillColor('#888').text('الدولة: الجزائر | الدفع عند الاستلام', 50, 750, { align: 'center' });
+
+  doc.end();
 });
+
+// ---------- XLSX Sales Report ----------
+
+app.get('/admin/export/sales', requireAdmin, async (_req, res) => {
+  const orders = store.getOrders();
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet('المبيعات');
+
+  sheet.columns = [
+    { header: 'رقم الطلب', key: 'id', width: 20 },
+    { header: 'العميل', key: 'customer', width: 25 },
+    { header: 'الهاتف', key: 'phone', width: 15 },
+    { header: 'الولاية', key: 'wilaya', width: 15 },
+    { header: 'المنتجات', key: 'items', width: 40 },
+    { header: 'المجموع', key: 'total', width: 15 },
+    { header: 'الحالة', key: 'status', width: 12 },
+    { header: 'التاريخ', key: 'date', width: 20 },
+  ];
+
+  orders.forEach(o => {
+    sheet.addRow({
+      id: o.id,
+      customer: (o.firstName || '') + ' ' + (o.lastName || ''),
+      phone: o.phone || '',
+      wilaya: o.wilaya || '',
+      items: (o.items || []).map(i => i.name + ' x' + i.quantity).join(', '),
+      total: (o.total || 0) + ' د.ج',
+      status: o.status || '',
+      date: o.createdAt ? new Date(o.createdAt).toLocaleDateString('ar-DZ') : '',
+    });
+  });
+
+  sheet.getRow(1).font = { bold: true };
+  sheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF111111' }, bgColor: { argb: 'FFFFFFFF' } };
+  sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=sales-report-' + new Date().toISOString().slice(0, 10) + '.xlsx');
+  res.send(buffer);
+});
+
+// ---------- 404 ----------
+
+app.use((_req, res) => {
+  res.status(404).send('الصفحة غير موجودة');
+});
+
+// ---------- Error handler ----------
+
+app.use((err, _req, res, _next) => {
+  const logMsg = new Date().toISOString() + ' ' + (err.stack || err.message) + '\n';
+  console.error(logMsg);
+  try { appendFileSync(join(__dirname, 'error.log'), logMsg); } catch (e) { console.error('Log write failed', e); }
+  res.status(500).send('خطأ: ' + (err.message || 'غير معروف'));
+});
+
+app.listen(PORT, () => {
+  console.log(`Worker ${process.pid} running on http://localhost:${PORT}`);
+});
+}
+
+// ---------- Master / Primary process ----------
+
+if (cluster.isPrimary && process.env.NODE_ENV !== 'development') {
+  const numCPUs = os.availableParallelism?.() || os.cpus().length;
+  console.log(`Master ${process.pid} spawning ${numCPUs} workers`);
+  for (let i = 0; i < numCPUs; i++) cluster.fork();
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died (${signal || code}), restarting...`);
+    cluster.fork();
+  });
+  // Keep-alive: self-ping every 10 min so Render doesn't sleep
+  setInterval(() => { fetch('http://localhost:' + PORT + '/ping').catch(() => {}); }, 10 * 60 * 1000);
+} else {
+  startWorker();
+}

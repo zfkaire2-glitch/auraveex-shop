@@ -1,27 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>كيفية العمل - AURA VEEX</title>
-  <link rel="stylesheet" href="/style.css">
-  <style>
-    .how-page { max-width: 700px; margin: 0 auto; padding: 2rem 0; }
-    .how-page h1 { text-align: center; font-size: 2rem; margin-bottom: 0.5rem; }
-    .how-page .sub { text-align: center; color: #666; margin-bottom: 2.5rem; font-size: 1.1rem; }
-    .steps { display: flex; flex-direction: column; gap: 1.5rem; }
-    .step { display: flex; align-items: flex-start; gap: 1.2rem; background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 14px; padding: 1.3rem 1.5rem; transition: 0.2s; }
-    .step:hover { border-color: #1a1a1a; }
-    .step-num { flex-shrink: 0; width: 44px; height: 44px; background: #1a1a1a; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; }
-    .step-body { flex: 1; }
-    .step-body h3 { margin: 0 0 0.3rem; font-size: 1.15rem; }
-    .step-body p { margin: 0; color: #555; line-height: 1.7; font-size: 1.05rem; }
-    .step-body .phone { color: #1a1a1a; font-weight: 700; direction: ltr; display: inline-block; }
-    @media (max-width: 500px) {
-      .step { padding: 1rem; }
-      .step-num { width: 36px; height: 36px; font-size: 1rem; }
-    }
-  </style>
+  <%- include('partials/head') %>
 </head>
 <body>
   <%- include('partials/header') %>

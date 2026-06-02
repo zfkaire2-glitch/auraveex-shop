@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main class="section">
+    <div class="auth-page">
+      <h1>تسجيل الدخول</h1>
+      <p class="sub">ادخل بحسابك لتتبع طلباتك وعناوينك</p>
+      <div class="auth-card">
+        <% if (error) { %><div class="error"><%= error %></div><% } %>
+        <form method="POST" action="/login">
+          <div class="form-group">
+            <label>رقم الهاتف</label>
+            <input type="tel" name="phone" placeholder="0555123456" required dir="ltr" style="text-align:left">
+          </div>
+          <div class="form-group">
+            <label>كلمة السر</label>
+            <input type="password" name="password" placeholder="أدخل كلمة السر" required>
+          </div>
+          <button type="submit" class="btn">دخول</button>
+        </form>
+        <div class="link">ليس لديك حساب؟ <a href="/signup">إنشاء حساب</a></div>
+      </div>
+    </div>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>

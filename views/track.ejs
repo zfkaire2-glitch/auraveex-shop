@@ -1,49 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تتبع طلبك - AURA VEEX</title>
-  <link rel="stylesheet" href="/style.css">
-  <style>
-    .track-page { max-width: 650px; margin: 0 auto; padding: 2rem 0; }
-    .track-page h1 { text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem; }
-    .track-page p.sub { text-align: center; color: #666; margin-bottom: 2rem; font-size: 1.1rem; }
-    .track-form { display: flex; gap: 0.75rem; max-width: 500px; margin: 0 auto 2rem; }
-    .track-form input { flex: 1; padding: 0.9rem 1.2rem; border: 2px solid #d1d5db; border-radius: 10px; font-size: 1.1rem; text-align: center; }
-    .track-form input:focus { border-color: #1a1a1a; outline: none; }
-    .track-form button { padding: 0.9rem 2rem; background: #1a1a1a; color: #fff; border: none; border-radius: 10px; font-size: 1.1rem; cursor: pointer; white-space: nowrap; }
-    .track-form button:hover { background: #333; }
-    .error { text-align: center; color: #c62828; font-size: 1.1rem; margin-bottom: 1.5rem; }
-    .result-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-    .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.8rem; border-bottom: 2px solid #f0f0f0; }
-    .result-header .id { font-weight: 700; font-size: 1.1rem; color: #1a1a1a; }
-    .badge { display: inline-block; padding: 0.25rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
-    .badge-new { background: #e3f2fd; color: #1565c0; }
-    .badge-call1 { background: #fff3e0; color: #e65100; }
-    .badge-call2 { background: #fff3e0; color: #e65100; }
-    .badge-confirmed { background: #e8f5e9; color: #2e7d32; }
-    .badge-cancelled { background: #fbe9e7; color: #c62828; }
-    .result-body { color: #555; line-height: 2; font-size: 1.05rem; }
-    .result-body span { color: #1a1a1a; }
-    .result-items { margin: 0.8rem 0; padding: 0.8rem 0; border-top: 1px dashed #e0e0e0; border-bottom: 1px dashed #e0e0e0; }
-    .result-item { display: flex; justify-content: space-between; padding: 0.3rem 0; }
-    .result-total { display: flex; justify-content: space-between; font-weight: 700; font-size: 1.1rem; margin-top: 0.5rem; color: #1a1a1a; }
-    .tracking-link { display: block; text-align: center; margin-top: 1rem; padding: 0.8rem; background: #e8f5e9; border-radius: 10px; font-size: 1.1rem; color: #2e7d32; text-decoration: none; font-weight: 600; }
-    .tracking-link:hover { background: #c8e6c9; }
-    .hint { text-align: center; color: #888; font-size: 0.9rem; margin-top: 2rem; }
-    .track-steps { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.5rem; }
-    .track-step { display: flex; align-items: center; gap: 0.8rem; padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.95rem; }
-    .track-step.done { background: #e8f5e9; color: #2e7d32; }
-    .track-step.pending { background: #f5f5f5; color: #999; }
-    .track-step .icon { font-size: 1.2rem; }
-    .track-step .label { flex: 1; }
-    .track-step .date { font-size: 0.85rem; color: #666; direction: ltr; }
-    @media (max-width: 500px) {
-      .track-form { flex-direction: column; }
-      .track-form button { width: 100%; }
-    }
-  </style>
+  <%- include('partials/head') %>
 </head>
 <body>
   <%- include('partials/header') %>
@@ -95,10 +53,29 @@
             <span>المجموع</span>
             <span><%= order.total.toLocaleString() %> د.ج</span>
           </div>
+          <% if (order.statusHistory && order.statusHistory.length > 0) { %>
+            <div style="margin-top:1rem;padding-top:1rem;border-top:2px solid #f0f0f0;">
+              <strong style="font-size:1rem;display:block;margin-bottom:0.8rem;">🔔 حالة الطلب</strong>
+              <div class="track-steps">
+                <% order.statusHistory.forEach(function(s) { %>
+                  <div class="track-step done">
+                    <span class="icon">✅</span>
+                    <span class="label"><%= s.from %> → <%= s.to %></span>
+                    <span class="date"><%= new Date(s.timestamp).toLocaleDateString('ar-DZ') %></span>
+                  </div>
+                <% }) %>
+                <div class="track-step done">
+                  <span class="icon">📝</span>
+                  <span class="label">تم إنشاء الطلب</span>
+                  <span class="date"><%= new Date(order.createdAt || Date.now()).toLocaleDateString('ar-DZ') %></span>
+                </div>
+              </div>
+            </div>
+          <% } %>
           <% if (order.trackingCode) { %>
             <div style="margin-top:1rem;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
-                <strong style="font-size:1rem;">📦 حالة التتبع</strong>
+                <strong style="font-size:1rem;">📦 تتبع الشحنة</strong>
                 <a href="https://track.yalidine.app/<%= order.trackingCode %>" target="_blank" style="font-size:0.9rem;color:#1565c0;">فتح في ياليدين ↗</a>
               </div>
               <div id="trackingStatus" style="text-align:center;padding:2rem;background:#f0f0f0;border-radius:10px;font-size:1rem;color:#888;">جاري تحميل حالة التتبع...</div>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main class="section">
+    <div class="account-page">
+      <h1>مرحباً <%= customer.firstName || customer.phone %></h1>
+      <div class="account-grid">
+        <div>
+          <div class="account-card">
+            <h2>👤 معلوماتي</h2>
+            <div class="info-row"><span class="label">الاسم</span><span class="value"><%= customer.firstName %> <%= customer.lastName %></span></div>
+            <div class="info-row"><span class="label">رقم الهاتف</span><span class="value" dir="ltr" style="text-align:left"><%= customer.phone %></span></div>
+            <div class="info-row"><span class="label">تاريخ التسجيل</span><span class="value"><%= new Date(customer.createdAt).toLocaleDateString('ar-DZ') %></span></div>
+          </div>
+          <div class="account-card" style="margin-top:1.5rem;">
+            <h2>📍 عناويني</h2>
+            <% if (customer.addresses && customer.addresses.length > 0) { %>
+              <% customer.addresses.forEach(function(a) { %>
+                <div class="address-item">
+                  <div class="label"><%= a.label %></div>
+                  <div class="detail"><%= a.address %><%= a.commune ? '، ' + a.commune : '' %>، <%= a.wilaya %></div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="empty-state">لا توجد عناوين محفوظة</div>
+            <% } %>
+            <details class="address-form">
+              <summary style="cursor:pointer;font-weight:600;color:#1565c0;font-size:0.95rem;">➕ إضافة عنوان جديد</summary>
+              <form method="POST" action="/account/address" style="margin-top:1rem;">
+                <div class="form-group">
+                  <label>تسمية (مثلاً: المنزل، العمل)</label>
+                  <input type="text" name="label" value="الرئيسي">
+                </div>
+                <div class="form-group">
+                  <label>الولاية</label>
+                  <select name="wilaya" required>
+                    <option value="">اختر الولاية</option>
+                    <% 
+                      const wilayas = [{id:1,name:'أدرار'},{id:2,name:'الشلف'},{id:3,name:'الأغواط'},{id:4,name:'أم البواقي'},{id:5,name:'باتنة'},{id:6,name:'بجاية'},{id:7,name:'بسكرة'},{id:8,name:'بشار'},{id:9,name:'البليدة'},{id:10,name:'البويرة'},{id:11,name:'تمنراست'},{id:12,name:'تبسة'},{id:13,name:'تلمسان'},{id:14,name:'تيارت'},{id:15,name:'تيزي وزو'},{id:16,name:'الجزائر'},{id:17,name:'الجلفة'},{id:18,name:'جيجل'},{id:19,name:'سطيف'},{id:20,name:'سعيدة'},{id:21,name:'سكيكدة'},{id:22,name:'سيدي بلعباس'},{id:23,name:'عنابة'},{id:24,name:'قالمة'},{id:25,name:'قسنطينة'},{id:26,name:'المدية'},{id:27,name:'مستغانم'},{id:28,name:'المسيلة'},{id:29,name:'معسكر'},{id:30,name:'ورقلة'},{id:31,name:'وهران'},{id:32,name:'البيض'},{id:33,name:'إليزي'},{id:34,name:'برج بوعريريج'},{id:35,name:'بومرداس'},{id:36,name:'الطارف'},{id:37,name:'تندوف'},{id:38,name:'تيسمسيلت'},{id:39,name:'الوادي'},{id:40,name:'خنشلة'},{id:41,name:'سوق أهراس'},{id:42,name:'تيبازة'},{id:43,name:'ميلة'},{id:44,name:'عين الدفلى'},{id:45,name:'النعامة'},{id:46,name:'عين تموشنت'},{id:47,name:'غرداية'},{id:48,name:'غليزان'}];
+                      wilayas.forEach(function(w) { 
+                    %>
+                      <option value="<%= w.name %>"><%= w.name %></option>
+                    <% }) %>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>البلدية</label>
+                  <input type="text" name="commune" placeholder="البلدية">
+                </div>
+                <div class="form-group">
+                  <label>العنوان الكامل</label>
+                  <input type="text" name="address" placeholder="رقم، شارع، حي..." required>
+                </div>
+                <button type="submit" class="btn-sm">💾 حفظ العنوان</button>
+              </form>
+            </details>
+          </div>
+        </div>
+        <div>
+          <div class="account-card">
+            <h2>📦 طلباتي</h2>
+            <% if (orders.length > 0) { %>
+              <% orders.reverse().forEach(function(o) { %>
+                <div class="order-mini">
+                  <div class="order-mini-header">
+                    <span><%= o.id %></span>
+                    <span class="badge-sm badge-<%=
+                      o.status === 'جديد' ? 'new' :
+                      o.status === 'اتصال 1' ? 'call1' :
+                      o.status === 'اتصال 2' ? 'call2' :
+                      o.status === 'مؤكد' ? 'confirmed' :
+                      o.status === 'ملغي' ? 'cancelled' : 'new'
+                    %>"><%= o.status %></span>
+                  </div>
+                  <div class="order-mini-body">
+                    <div><%= o.items.map(function(i) { return i.name + ' x' + i.quantity; }).join('، ') %></div>
+                    <div style="font-weight:700;margin-top:0.3rem;"><%= o.total.toLocaleString() %> د.ج</div>
+                  </div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="empty-state">لا توجد طلبات بعد</div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      <a href="/logout" class="logout-link">🚪 تسجيل الخروج</a>
+    </div>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>

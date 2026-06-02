@@ -1,12 +1,28 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= product.name %> - AURA VEEX</title>
-  <link rel="stylesheet" href="/style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <%- include('partials/head') %>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "<%= product.name.replace(/"/g, '\\"') %>",
+    "image": [<% product.images && product.images.forEach(function(img, i) { %>
+      "<%= img %>"<%= i < product.images.length - 1 ? ',' : '' %>
+    <% }) %>],
+    "description": "<%= (product.description || '').replace(/"/g, '\\"').replace(/\n/g, ' ').slice(0, 200) %>",
+    "sku": "<%= product.id %>",
+    "brand": { "@type": "Brand", "name": "AURA VEEX" },
+    "offers": {
+      "@type": "Offer",
+      "url": "https://auraveex-shop.onrender.com/product/<%= product.id %>",
+      "priceCurrency": "DZD",
+      "price": "<%= product.price %>",
+      "availability": "https://schema.org/InStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    }
+  }
+  </script>
 </head>
 <body>
   <%- include('partials/header') %>
@@ -27,6 +43,13 @@
         <% } %>
       </div>
       <div class="product-info">
+        <div class="breadcrumbs">
+          <a href="/">الرئيسية</a>
+          <span>›</span>
+          <a href="/products">المنتجات</a>
+          <span>›</span>
+          <span><%= product.name %></span>
+        </div>
         <p class="product-vendor"><%= product.category %></p>
         <h1 class="product-title"><%= product.name %></h1>
         <div class="product-price">
@@ -51,16 +74,54 @@
               <% }) %>
             </div>
           </div>
-          <button type="submit" class="btn-add">أضف إلى السلة</button>
+          <div class="form-row">
+            <label for="quantity">الكمية</label>
+            <div class="quantity-selector">
+              <button type="button" class="qty-btn" onclick="decreaseQty()">−</button>
+              <input type="number" name="quantity" id="qtyInput" value="1" min="1" max="99">
+              <button type="button" class="qty-btn" onclick="increaseQty()">+</button>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-add">أضف إلى السلة</button>
+            <a href="#" onclick="orderWhatsApp()" class="btn-whatsapp">💬 اطلب عبر واتساب</a>
+          </div>
         </form>
         <div class="product-extras">
           <div class="extra-item">✅ الدفع عند الاستلام</div>
           <div class="extra-item">🚚 التوصيل عبر Yalidine لباب المنزل</div>
           <div class="extra-item">🔄 الإرجاع خلال 7 أيام</div>
         </div>
+        <div class="share-section">
+          <span>⬇️ مشاركة:</span>
+          <div class="share-buttons">
+            <a href="#" onclick="shareWhatsApp()" class="share-btn" title="مشاركة عبر واتساب">📱</a>
+            <a href="#" onclick="shareFacebook()" class="share-btn" title="مشاركة عبر فيسبوك">📘</a>
+            <a href="#" onclick="copyLink()" class="share-btn" title="نسخ الرابط">🔗</a>
+          </div>
+        </div>
       </div>
     </div>
   </main>
+  <% if (suggested && suggested.length > 0) { %>
+    <section class="suggested-section">
+      <h2>قد يعجبك أيضاً</h2>
+      <div class="suggested-grid">
+        <% suggested.forEach(p => { %>
+          <a href="/product/<%= p.id %>" class="product-card">
+            <img src="<%= p.images[0] %>" alt="<%= p.name %>">
+            <h3><%= p.name %></h3>
+            <div class="price">
+              <span class="current"><%= p.price.toLocaleString() %> د.ج</span>
+              <% if (p.oldPrice) { %>
+                <span class="old"><%= p.oldPrice.toLocaleString() %> د.ج</span>
+              <% } %>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
   <%- include('partials/footer') %>
 
   <div id="lightbox" class="lightbox" onclick="closeLightbox()">
@@ -111,6 +172,24 @@
       if (e.key === 'ArrowLeft') changeImage(-1);
       if (e.key === 'ArrowRight') changeImage(1);
     });
+
+    function increaseQty() { var el = document.getElementById('qtyInput'); el.value = Math.min(99, parseInt(el.value || 0) + 1); }
+    function decreaseQty() { var el = document.getElementById('qtyInput'); el.value = Math.max(1, parseInt(el.value || 1) - 1); }
+
+    function shareWhatsApp() { window.open('https://wa.me/?text=' + encodeURIComponent('<%= product.name %> - AURA VEEX\n' + window.location.href), '_blank'); }
+    function shareFacebook() { window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank'); }
+    function copyLink() { navigator.clipboard.writeText(window.location.href).then(function() { alert('تم نسخ الرابط!'); }); }
+
+    function orderWhatsApp() {
+      var size = document.querySelector('input[name="size"]:checked');
+      var qty = document.getElementById('qtyInput').value;
+      var msg = '<%= product.name %> - AURA VEEX';
+      if (size) msg += '\nالمقاس: ' + size.value;
+      msg += '\nالكمية: ' + qty;
+      msg += '\nالسعر: <%= product.price.toLocaleString() %> د.ج';
+      msg += '\n' + window.location.href;
+      window.open('https://wa.me/213551600923?text=' + encodeURIComponent(msg), '_blank');
+    }
 
     function switchImage(src, thumb) {
       const wrapper = document.querySelector('.image-wrapper');

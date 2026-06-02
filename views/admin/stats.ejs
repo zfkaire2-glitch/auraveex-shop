@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <%- include('partials/head') %>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-sidebar { width: 220px; background: #1a1a1a; color: #fff; padding: 2rem 1rem; }
+    .admin-sidebar h2 { font-size: 1.2rem; margin-bottom: 2rem; }
+    .admin-sidebar a { display: block; color: #ccc; padding: 0.6rem 0; border-bottom: 1px solid #333; }
+    .admin-sidebar a:hover { color: #fff; }
+    .admin-content { flex: 1; padding: 2rem; background: #e9ecef; }
+    .admin-content h1 { font-size: 1.8rem; margin-bottom: 1.5rem; text-align: right; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: #fff; border-radius: 16px; padding: 1.5rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .stat-card .num { font-size: 2.2rem; font-weight: 800; color: #111; }
+    .stat-card .label { font-size: 0.9rem; color: #888; margin-top: 0.3rem; }
+    .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .chart-card { background: #fff; border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .chart-card h2 { font-size: 1.2rem; margin-bottom: 1rem; text-align: center; }
+    .chart-card canvas { max-height: 300px; }
+    @media (max-width: 700px) { .chart-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div class="admin-sidebar">
+      <h2>AURA VEEX</h2>
+      <a href="/admin">📊 المنتجات</a>
+      <a href="/admin/orders">📋 الطلبات</a>
+      <a href="/admin/stats">📈 الإحصائيات</a>
+      <a href="/admin/products/add">➕ إضافة منتج</a>
+      <a href="/">🏠 المتجر</a>
+      <a href="/admin/logout">🚪 خروج</a>
+    </div>
+    <div class="admin-content">
+      <h1>📈 الإحصائيات</h1>
+      <div style="text-align:left;margin-bottom:1rem;">
+        <a href="/admin/export/sales" class="btn-sm" style="text-decoration:none;">📊 تصدير Excel</a>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="num"><%= stats.totalOrders %></div><div class="label">إجمالي الطلبات</div></div>
+        <div class="stat-card"><div class="num"><%= stats.totalSales.toLocaleString() %> د.ج</div><div class="label">إجمالي المبيعات</div></div>
+        <div class="stat-card"><div class="num" style="color:#1565c0;"><%= stats.byStatus['جديد'] || 0 %></div><div class="label">جديد</div></div>
+        <div class="stat-card"><div class="num" style="color:#e65100;"><%= stats.byStatus['اتصال 1'] || 0 %></div><div class="label">اتصال 1</div></div>
+        <div class="stat-card"><div class="num" style="color:#e65100;"><%= stats.byStatus['اتصال 2'] || 0 %></div><div class="label">اتصال 2</div></div>
+        <div class="stat-card"><div class="num" style="color:#2e7d32;"><%= stats.byStatus['مؤكد'] || 0 %></div><div class="label">مؤكد</div></div>
+        <div class="stat-card"><div class="num" style="color:#c62828;"><%= stats.byStatus['ملغي'] || 0 %></div><div class="label">ملغي</div></div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h2>الطلبات حسب الحالة</h2>
+          <canvas id="statusChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h2>المبيعات الشهرية</h2>
+          <canvas id="salesChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+      type: 'pie',
+      data: {
+        labels: ['جديد', 'اتصال 1', 'اتصال 2', 'مؤكد', 'ملغي'],
+        datasets: [{
+          data: [<%= stats.byStatus['جديد'] || 0 %>, <%= stats.byStatus['اتصال 1'] || 0 %>, <%= stats.byStatus['اتصال 2'] || 0 %>, <%= stats.byStatus['مؤكد'] || 0 %>, <%= stats.byStatus['ملغي'] || 0 %>],
+          backgroundColor: ['#1565c0', '#e65100', '#ff9800', '#2e7d32', '#c62828'],
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom', rtl: true } } }
+    });
+    const salesCtx = document.getElementById('salesChart').getContext('2d');
+    const monthlyData = <%- JSON.stringify(stats.monthlySales) %>;
+    const months = Object.keys(monthlyData).sort();
+    new Chart(salesCtx, {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [{
+          label: 'المبيعات (د.ج)',
+          data: months.map(m => monthlyData[m]),
+          borderColor: '#1565c0',
+          backgroundColor: 'rgba(21,101,192,.1)',
+          fill: true,
+          tension: 0.4,
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+  </script>
+</body>
+</html>

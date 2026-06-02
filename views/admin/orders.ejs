@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الطلبات - Admin AURA VEEX</title>
-  <link rel="stylesheet" href="/style.css">
+  <%- include('partials/head') %>
   <style>
     .admin-layout { display: flex; min-height: 100vh; }
     .admin-sidebar { width: 220px; background: #1a1a1a; color: #fff; padding: 2rem 1rem; }
@@ -47,6 +44,7 @@
       <h2>AURA VEEX</h2>
       <a href="/admin">📊 المنتجات</a>
       <a href="/admin/orders">📋 الطلبات</a>
+      <a href="/admin/stats">📈 الإحصائيات</a>
       <a href="/admin/products/add">➕ إضافة منتج</a>
       <a href="/">🏠 المتجر</a>
       <a href="/admin/logout">🚪 خروج</a>
@@ -104,6 +102,7 @@
                       </select>
                       <button type="submit" class="btn-sm">تحديث</button>
                     </form>
+                    <a href="/admin/orders/<%= o.id %>/invoice" class="btn-sm" style="text-decoration:none;font-size:0.8rem;">📄 فاتورة</a>
                     <form action="/admin/orders/delete/<%= o.id %>" method="POST" onsubmit="return confirm('حذف الطلب ' + <%= JSON.stringify(o.id) %> + '؟')">
                       <button type="submit" class="btn-del">🗑️</button>
                     </form>
