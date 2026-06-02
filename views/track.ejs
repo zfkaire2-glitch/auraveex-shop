@@ -115,7 +115,7 @@
   <script>
     <% if (order && order.trackingCode) { %>
     (async function() {
-      const code = '<%= order.trackingCode %>';
+      const code = <%- JSON.stringify(order.trackingCode) %>;
       const statusEl = document.getElementById('trackingStatus');
       const fallbackEl = document.getElementById('trackingFallback');
       try {

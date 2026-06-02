@@ -15,10 +15,10 @@
       <div class="product-gallery">
         <div class="main-image" onclick="openLightbox()" style="cursor:zoom-in">
           <div class="image-wrapper">
-            <img src="<%= product.images[0] %>" alt="<%= product.name %>" id="mainImg">
+            <img src="<%= (product.images && product.images[0]) || '/images/placeholder.svg' %>" alt="<%= product.name %>" id="mainImg">
           </div>
         </div>
-        <% if (product.images.length > 1) { %>
+        <% if (product.images && product.images.length > 1) { %>
           <div class="thumbnails">
             <% product.images.forEach((img, i) => { %>
               <img src="<%= img %>" alt="" class="thumb <%= i === 0 ? 'active' : '' %>" onclick="switchImage(this.src, this)">
@@ -77,14 +77,14 @@
 
   <script>
     const images = [
-      <% product.images.forEach((img, i) => { %>
+      <% if (product.images) { product.images.forEach((img, i) => { %>
         '<%= img %>'<%= i < product.images.length - 1 ? ',' : '' %>
-      <% }) %>
+      <% }) } %>
     ];
     let currentIdx = 0;
 
     function openLightbox() {
-      currentIdx = images.indexOf(document.getElementById('mainImg').src);
+      currentIdx = images.findIndex(img => document.getElementById('mainImg').src.endsWith(img));
       showLightboxImage();
       document.getElementById('lightbox').classList.add('open');
       document.body.style.overflow = 'hidden';

@@ -104,7 +104,7 @@
                       </select>
                       <button type="submit" class="btn-sm">تحديث</button>
                     </form>
-                    <form action="/admin/orders/delete/<%= o.id %>" method="POST" onsubmit="return confirm('حذف الطلب <%= o.id %>؟')">
+                    <form action="/admin/orders/delete/<%= o.id %>" method="POST" onsubmit="return confirm('حذف الطلب ' + <%= JSON.stringify(o.id) %> + '؟')">
                       <button type="submit" class="btn-del">🗑️</button>
                     </form>
                   </div>

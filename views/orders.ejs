@@ -67,7 +67,7 @@
   <script>
     <% orders.filter(o => o.trackingCode).forEach(order => { %>
     (async function() {
-      const code = '<%= order.trackingCode %>';
+      const code = <%- JSON.stringify(order.trackingCode) %>;
       const statusEl = document.getElementById('ts-<%= order.id %>');
       const fallbackEl = document.getElementById('tf-<%= order.id %>');
       try {
