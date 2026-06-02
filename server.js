@@ -706,12 +706,13 @@ app.listen(PORT, () => {
 });
 }
 
-// ---------- Master / Primary process ----------
+// ---------- Master / Primary process (disabled by default on low-memory hosts like Render free) ----------
 
-if (cluster.isPrimary && process.env.NODE_ENV !== 'development') {
-  const numCPUs = os.availableParallelism?.() || os.cpus().length;
-  console.log(`Master ${process.pid} spawning ${numCPUs} workers`);
-  for (let i = 0; i < numCPUs; i++) cluster.fork();
+const WORKERS = parseInt(process.env.CLUSTER_WORKERS || '0');
+
+if (cluster.isPrimary && WORKERS > 0) {
+  console.log(`Master ${process.pid} spawning ${WORKERS} worker(s)`);
+  for (let i = 0; i < WORKERS; i++) cluster.fork();
   cluster.on('exit', (worker, code, signal) => {
     console.log(`Worker ${worker.process.pid} died (${signal || code}), restarting...`);
     cluster.fork();
