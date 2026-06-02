@@ -113,3 +113,11 @@ export function updateOrderTracking(id, trackingCode) {
   writeFileSync(ORDERS_PATH, JSON.stringify(orders, null, 2), 'utf-8');
   return true;
 }
+
+export function deleteOrder(id) {
+  const orders = getOrders();
+  const filtered = orders.filter(o => o.id !== id);
+  if (filtered.length === orders.length) return false;
+  writeFileSync(ORDERS_PATH, JSON.stringify(filtered, null, 2), 'utf-8');
+  return true;
+}

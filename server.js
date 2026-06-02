@@ -400,6 +400,11 @@ app.post('/admin/orders/tracking', requireAdmin, (_req, res) => {
   res.redirect('/admin/orders');
 });
 
+app.post('/admin/orders/delete/:id', requireAdmin, (_req, res) => {
+  store.deleteOrder(_req.params.id);
+  res.redirect('/admin/orders');
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`E-commerce store running on http://localhost:${PORT}`);
