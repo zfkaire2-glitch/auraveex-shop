@@ -320,6 +320,10 @@ app.post('/track', (_req, res) => {
   });
 });
 
+app.get('/how', (_req, res) => {
+  res.render('how', { cartCount: (_req.session.cart || []).reduce((a, i) => a + i.quantity, 0) });
+});
+
 // ---------- Admin routes ----------
 
 app.get('/admin/login', (_req, res) => {
