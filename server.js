@@ -8,7 +8,7 @@ import { dirname, join } from 'path';
 import { existsSync } from 'fs';
 import { initSheets, saveOrder, isSheetsReady } from './sheets.js';
 import communes from './data/communes.json' with { type: 'json' };
-import { calculateDelivery, createShipment } from './yalidine.js';
+import { calculateDelivery, createShipment, trackShipment } from './yalidine.js';
 import * as store from './store.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -322,6 +322,18 @@ app.post('/track', (_req, res) => {
 
 app.get('/how', (_req, res) => {
   res.render('how', { cartCount: (_req.session.cart || []).reduce((a, i) => a + i.quantity, 0) });
+});
+
+app.get('/api/tracking/:code', async (_req, res) => {
+  if (!YALIDINE_API_KEY || !YALIDINE_PARTNER_TOKEN) {
+    return res.json({ available: false, error: 'مفاتيح Yalidine غير مفعلة' });
+  }
+  try {
+    const data = await trackShipment(YALIDINE_API_KEY, YALIDINE_PARTNER_TOKEN, _req.params.code);
+    res.json({ available: true, data });
+  } catch (err) {
+    res.json({ available: false, error: err.message });
+  }
 });
 
 // ---------- Admin routes ----------
