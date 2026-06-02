@@ -42,7 +42,13 @@
             <div class="order-footer">
             <span><%= order.deliveryPrice ? 'المجموع (مع التوصيل): ' : 'المجموع: ' %><%= order.total.toLocaleString() %> د.ج</span>
             <% if (order.trackingCode) { %>
-              <a href="https://track.yalidine.app/<%= order.trackingCode %>" target="_blank" class="track-btn">📦 تتبع الطرد</a>
+              <div style="margin-top:0.8rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                  <strong style="font-size:0.95rem;">📦 حالة التتبع</strong>
+                  <a href="https://track.yalidine.app/<%= order.trackingCode %>" target="_blank" style="font-size:0.85rem;color:#1565c0;">فتح في ياليدين ↗</a>
+                </div>
+                <iframe src="https://track.yalidine.app/<%= order.trackingCode %>" style="width:100%;height:260px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;" sandbox="allow-scripts allow-same-origin"></iframe>
+              </div>
             <% } %>
           </div>
         </div>
