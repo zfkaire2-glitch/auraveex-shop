@@ -5,70 +5,194 @@
 </head>
 <body>
   <%- include('partials/header') %>
-  <main class="section">
-    <h1>إتمام الشراء</h1>
-    <div class="checkout-layout">
-      <form action="/checkout" method="POST" class="checkout-form" onsubmit="return validateForm()">
+  <main class="checkout-page">
+    <div class="checkout-container">
+      <div class="checkout-left">
+        <h1>معلومات التوصيل</h1>
         <% if (typeof error !== 'undefined' && error) { %>
-          <div style="color:#c62828;background:#fbe9e7;padding:0.8rem;border-radius:8px;margin-bottom:1rem;text-align:center;font-weight:600;"><%= error %></div>
+          <div class="checkout-error"><%= error %></div>
         <% } %>
-        <div class="form-group">
-          <label>الاسم الشخصي *</label>
-          <input type="text" name="firstName" required>
-        </div>
-        <div class="form-group">
-          <label>اللقب *</label>
-          <input type="text" name="lastName" required>
-        </div>
-        <div class="form-group">
-          <label>رقم الهاتف *</label>
-          <input type="tel" name="phone" required pattern="0[0-9]{9}" title="أدخل رقم هاتف صحيح يبدأ بـ 0 (مثال: 0555123456)">
-        </div>
-        <div class="form-group">
-          <label>الولاية *</label>
-          <select name="wilaya" id="wilayaSelect" required>
-            <option value="">اختر ولايتك</option>
-            <% wilayas.forEach(w => { %>
-              <option value="<%= w.id %>"><%= w.name %></option>
-            <% }) %>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>البلدية *</label>
-          <select name="commune" id="communeSelect" required>
-            <option value="">اختر الولاية أولاً</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>العنوان الكامل *</label>
-          <textarea name="address" rows="3" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-lg">تأكيد الطلب</button>
-      </form>
-      <div class="checkout-summary">
-        <h3>ملخص الطلب</h3>
-        <% cart.forEach(item => { %>
-          <div class="summary-item">
-            <span><%= item.name %> x<%= item.quantity %></span>
-            <span><%= (item.price * item.quantity).toLocaleString() %> د.ج</span>
+        <form action="/checkout" method="POST" class="checkout-form" onsubmit="return validateForm()">
+          <div class="form-row">
+            <div class="form-group">
+              <label>الاسم الشخصي *</label>
+              <input type="text" name="firstName" required>
+            </div>
+            <div class="form-group">
+              <label>اللقب *</label>
+              <input type="text" name="lastName" required>
+            </div>
           </div>
-        <% }) %>
-        <div class="summary-item" id="deliveryRow" style="display:none;">
-          <span>التوصيل (لباب المنزل)</span>
-          <span id="deliveryPriceDisplay">0 د.ج</span>
+          <div class="form-group">
+            <label>رقم الهاتف *</label>
+            <input type="tel" name="phone" required pattern="0[0-9]{9}" title="أدخل رقم هاتف صحيح يبدأ بـ 0 (مثال: 0555123456)">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>الولاية *</label>
+              <select name="wilaya" id="wilayaSelect" required>
+                <option value="">اختر ولايتك</option>
+                <% wilayas.forEach(w => { %>
+                  <option value="<%= w.id %>"><%= w.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>البلدية *</label>
+              <select name="commune" id="communeSelect" required>
+                <option value="">اختر الولاية أولاً</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>العنوان الكامل *</label>
+            <textarea name="address" rows="3" required></textarea>
+          </div>
+          <button type="submit" class="checkout-submit">تأكيد الطلب</button>
+        </form>
+      </div>
+      <div class="checkout-right">
+        <h2>ملخص الطلب</h2>
+        <div class="checkout-items" id="checkoutItems">
+          <% cart.forEach((item, idx) => { %>
+            <div class="checkout-item" data-id="<%= item.id %>" data-size="<%= item.size %>">
+              <img src="<%= item.image %>" alt="<%= item.name %>" class="checkout-item-img" onerror="this.src='/images/placeholder.svg'">
+              <div class="checkout-item-details">
+                <div class="checkout-item-name"><%= item.name %></div>
+                <div class="checkout-item-meta">المقاس: <%= item.size %></div>
+                <div class="checkout-item-price"><%= item.price.toLocaleString() %> د.ج</div>
+              </div>
+              <div class="checkout-item-qty">
+                <button type="button" class="qty-btn" onclick="updateQty(this, -1)">−</button>
+                <input type="number" class="qty-val" value="<%= item.quantity %>" min="0" readonly>
+                <button type="button" class="qty-btn" onclick="updateQty(this, 1)">+</button>
+              </div>
+              <div class="checkout-item-total"><%= (item.price * item.quantity).toLocaleString() %> د.ج</div>
+              <button type="button" class="checkout-item-remove" onclick="removeItem(this)" title="إزالة">✕</button>
+            </div>
+          <% }) %>
         </div>
-        <div class="summary-total">
-          <span>المجموع</span>
-          <span id="totalDisplay"><%= subtotal.toLocaleString() %> د.ج</span>
+        <div class="checkout-summary-lines">
+          <div class="checkout-line">
+            <span>المجموع الفرعي</span>
+            <span id="subtotalDisplay"><%= subtotal.toLocaleString() %> د.ج</span>
+          </div>
+          <div class="checkout-line" id="deliveryRow" style="display:none;">
+            <span>التوصيل</span>
+            <span id="deliveryPriceDisplay">0 د.ج</span>
+          </div>
+          <div class="checkout-line checkout-line-total">
+            <span>المجموع</span>
+            <span id="totalDisplay"><%= subtotal.toLocaleString() %> د.ج</span>
+          </div>
         </div>
-        <p class="delivery-note">🚚 التوصيل لباب المنزل عبر Yalidine — الدفع عند الاستلام</p>
+        <p class="checkout-note">🚚 التوصيل لباب المنزل عبر Yalidine — الدفع عند الاستلام</p>
       </div>
     </div>
   </main>
   <script>
-    const communes = <%- JSON.stringify(communes) %>;
-    const prices = <%- JSON.stringify(deliveryPrices) %>;
-    const subtotal = <%= subtotal %>;
+    const DELIVERY_PRICES = <%- JSON.stringify(deliveryPrices) %>;
+    const COMMUNES = <%- JSON.stringify(communes) %>;
+    let CURRENT_SUBTOTAL = <%= subtotal %>;
+
+    function getCart() {
+      return JSON.parse(sessionStorage.getItem('auraveex_cart') || 'null') || null;
+    }
+
+    function setCart(cart) {
+      sessionStorage.setItem('auraveex_cart', JSON.stringify(cart));
+    }
+
+    async function apiUpdate(id, size, quantity) {
+      const res = await fetch('/api/cart/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, size, quantity })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setCart(data.cart);
+        updateUI(data);
+      }
+      return data;
+    }
+
+    function findItem(el) {
+      return el.closest('.checkout-item');
+    }
+
+    async function updateQty(btn, delta) {
+      const item = findItem(btn);
+      const input = item.querySelector('.qty-val');
+      let qty = parseInt(input.value) + delta;
+      if (qty < 0) qty = 0;
+      input.value = qty;
+      const id = item.dataset.id;
+      const size = item.dataset.size;
+      if (qty === 0) {
+        item.style.transition = 'opacity 0.3s';
+        item.style.opacity = '0';
+        setTimeout(() => {
+          apiUpdate(id, size, 0).then(data => {
+            if (data.ok) {
+              item.remove();
+              if (data.cart.length === 0) window.location.href = '/products';
+            }
+          });
+        }, 300);
+      } else {
+        await apiUpdate(id, size, qty);
+      }
+    }
+
+    async function removeItem(btn) {
+      const item = findItem(btn);
+      const id = item.dataset.id;
+      const size = item.dataset.size;
+      item.style.transition = 'opacity 0.3s, transform 0.3s';
+      item.style.opacity = '0';
+      item.style.transform = 'translateX(20px)';
+      setTimeout(() => {
+        apiUpdate(id, size, 0).then(data => {
+          if (data.ok) {
+            item.remove();
+            if (data.cart.length === 0) window.location.href = '/products';
+          }
+        });
+      }, 300);
+    }
+
+    function updateUI(data) {
+      CURRENT_SUBTOTAL = data.subtotal;
+      const subtotalEl = document.getElementById('subtotalDisplay');
+      const totalEl = document.getElementById('totalDisplay');
+      subtotalEl.textContent = data.subtotal.toLocaleString() + ' د.ج';
+      const sel = document.getElementById('wilayaSelect');
+      const wid = sel.value;
+      const p = DELIVERY_PRICES[wid];
+      const delivery = p && p.domicile ? p.domicile : 0;
+      const row = document.getElementById('deliveryRow');
+      const dp = document.getElementById('deliveryPriceDisplay');
+      if (delivery) {
+        row.style.display = 'flex';
+        dp.textContent = delivery.toLocaleString() + ' د.ج';
+      } else {
+        row.style.display = 'none';
+      }
+      totalEl.textContent = (data.subtotal + delivery).toLocaleString() + ' د.ج';
+      const items = document.querySelectorAll('.checkout-item');
+      items.forEach(item => {
+        const id = item.dataset.id;
+        const size = item.dataset.size;
+        const ci = data.cart.find(c => c.id === id && c.size === size);
+        if (ci) {
+          const totalEl2 = item.querySelector('.checkout-item-total');
+          totalEl2.textContent = (ci.price * ci.quantity).toLocaleString() + ' د.ج';
+        }
+      });
+      const badge = document.querySelector('.cart-badge');
+      if (badge) badge.textContent = data.cartCount;
+    }
 
     function validateForm() {
       const fields = [
@@ -96,7 +220,7 @@
     document.getElementById('wilayaSelect').addEventListener('change', function() {
       const sel = document.getElementById('communeSelect');
       sel.innerHTML = '<option value="">اختر بلديتك</option>';
-      const list = communes[this.value];
+      const list = COMMUNES[this.value];
       if (list) {
         list.forEach(c => {
           const opt = document.createElement('option');
@@ -109,17 +233,17 @@
         sel.innerHTML = '<option value="">لا توجد بلديات متاحة</option>';
         sel.disabled = true;
       }
-      const p = prices[this.value];
+      const totalEl = document.getElementById('totalDisplay');
+      const p = DELIVERY_PRICES[this.value];
       const row = document.getElementById('deliveryRow');
       const dp = document.getElementById('deliveryPriceDisplay');
-      const tot = document.getElementById('totalDisplay');
       if (p && p.domicile) {
         row.style.display = 'flex';
         dp.textContent = p.domicile.toLocaleString() + ' د.ج';
-        tot.textContent = (subtotal + p.domicile).toLocaleString() + ' د.ج';
+        totalEl.textContent = (CURRENT_SUBTOTAL + p.domicile).toLocaleString() + ' د.ج';
       } else {
         row.style.display = 'none';
-        tot.textContent = subtotal.toLocaleString() + ' د.ج';
+        totalEl.textContent = CURRENT_SUBTOTAL.toLocaleString() + ' د.ج';
       }
     });
   </script>

@@ -321,6 +321,20 @@ app.post('/cart/update', (_req, res) => {
   res.redirect('/cart');
 });
 
+app.post('/api/cart/update', (_req, res) => {
+  const { id, size, quantity } = _req.body;
+  if (!_req.session.cart) return res.json({ error: 'no cart' });
+  if (quantity <= 0) {
+    _req.session.cart = _req.session.cart.filter(i => !(i.id === id && i.size === size));
+  } else {
+    const item = _req.session.cart.find(i => i.id === id && i.size === size);
+    if (item) item.quantity = parseInt(quantity);
+  }
+  const cart = _req.session.cart || [];
+  const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+  res.json({ ok: true, cart, subtotal, cartCount: cart.reduce((a, i) => a + i.quantity, 0) });
+});
+
 app.get('/cart', (_req, res) => {
   const cart = _req.session.cart || [];
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
