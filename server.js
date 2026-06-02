@@ -7,12 +7,13 @@ import os from 'os';
 import { v4 as uuidv4 } from 'uuid';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { existsSync, appendFileSync } from 'fs';
+import { existsSync, appendFileSync, readFileSync, writeFileSync } from 'fs';
 import compression from 'compression';
 import PDFDocument from 'pdfkit';
 import ExcelJS from 'exceljs';
 import { initSheets, saveOrder, isSheetsReady } from './sheets.js';
 import communes from './data/communes.json' with { type: 'json' };
+import themeDefaults from './data/theme.json' with { type: 'json' };
 import { calculateDelivery, createShipment, trackShipment } from './yalidine.js';
 import * as store from './store.js';
 
@@ -179,12 +180,85 @@ app.use((_req, _res, next) => {
   _res.locals.ogDescription = null;
   _res.locals.ogImage = null;
   _res.locals.canonicalUrl = null;
+  const activeTheme = getTheme();
+  _res.locals.themeCSS = themeCSSVars(activeTheme);
+  _res.locals.logoText = activeTheme.logo.type === 'text' ? activeTheme.logo.text : '';
   next();
 });
 
 function requireAdmin(req, res, next) {
   if (req.session.admin) return next();
   res.redirect('/admin/login');
+}
+
+function getTheme() {
+  try {
+    return JSON.parse(readFileSync('./data/theme.json', 'utf8'));
+  } catch { return themeDefaults; }
+}
+
+function saveTheme(t) {
+  writeFileSync('./data/theme.json', JSON.stringify(t, null, 2), 'utf8');
+}
+
+function themeCSSVars(theme) {
+  const c = theme.colors.light;
+  const d = theme.colors.dark;
+  const f = theme.fonts;
+  return `
+:root {
+  --font-main: ${f.body};
+  --bg-primary: ${c.bg_primary};
+  --bg-card: ${c.bg_card};
+  --bg-dark: ${c.navbar_bg};
+  --bg-dark-hover: ${c.navbar_text_hover};
+  --bg: ${c.bg_card};
+  --text-primary: ${c.text_primary};
+  --text-secondary: ${c.text_secondary};
+  --text-muted: ${c.text_muted};
+  --text-light: ${c.navbar_text};
+  --text: ${c.text_primary};
+  --border-light: ${c.border_light};
+  --border-dark: ${c.navbar_bg};
+  --border: ${c.border_light};
+  --btn-text: ${c.navbar_text};
+  --accent: ${c.accent};
+  --accent-hover: ${c.accent_hover};
+  --radius-sm: ${c.radius_sm};
+  --radius-md: ${c.radius};
+  --radius-lg: ${c.radius};
+  --radius-xl: ${c.radius};
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.05);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.08);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,.12);
+  --transition: all .3s cubic-bezier(.4,0,.2,1);
+}
+html[data-theme="dark"] {
+  --bg-primary: ${d.bg_primary};
+  --bg-card: ${d.bg_card};
+  --bg-dark: ${d.navbar_bg};
+  --bg-dark-hover: ${d.navbar_text_hover};
+  --bg: ${d.bg_card};
+  --text-primary: ${d.text_primary};
+  --text-secondary: ${d.text_secondary};
+  --text-muted: ${d.text_muted};
+  --text-light: ${d.navbar_text};
+  --text: ${d.text_primary};
+  --border-light: ${d.border_light};
+  --border-dark: ${d.navbar_bg};
+  --border: ${d.border_light};
+  --btn-text: ${d.navbar_text};
+  --accent: ${d.accent};
+  --accent-hover: ${d.accent_hover};
+  --radius-sm: ${d.radius_sm};
+  --radius-md: ${d.radius};
+  --radius-lg: ${d.radius};
+  --radius-xl: ${d.radius};
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.4);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,.5);
+  --transition: all .3s cubic-bezier(.4,0,.2,1);
+}`;
 }
 
 // ---------- Public routes ----------
@@ -695,6 +769,59 @@ app.get('/admin/export/sales', requireAdmin, async (_req, res) => {
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   res.setHeader('Content-Disposition', 'attachment; filename=sales-report-' + new Date().toISOString().slice(0, 10) + '.xlsx');
   res.send(buffer);
+});
+
+// ---------- Theme Customizer ----------
+
+app.get('/admin/theme', requireAdmin, (_req, res) => {
+  const theme = getTheme();
+  res.render('admin/theme', { pageTitle: 'تخصيص الثيم', theme, success: null });
+});
+
+app.post('/admin/theme', requireAdmin, (_req, res) => {
+  const t = getTheme();
+  if (_req.body.logo_type) t.logo.type = _req.body.logo_type;
+  if (_req.body.logo_text) t.logo.text = _req.body.logo_text;
+  if (_req.body.favicon) t.favicon = _req.body.favicon;
+  if (_req.body.font_body) t.fonts.body = _req.body.font_body;
+  if (_req.body.font_heading) t.fonts.heading = _req.body.font_heading;
+  if (_req.body.font_size_base) t.fonts.size_base = _req.body.font_size_base;
+  if (_req.body.font_size_heading) t.fonts.size_heading = _req.body.font_size_heading;
+  if (_req.body.theme_label) t.label = _req.body.theme_label;
+  // Light colors
+  const lc = t.colors.light;
+  if (_req.body.light_bg_primary) lc.bg_primary = _req.body.light_bg_primary;
+  if (_req.body.light_bg_card) lc.bg_card = _req.body.light_bg_card;
+  if (_req.body.light_text_primary) lc.text_primary = _req.body.light_text_primary;
+  if (_req.body.light_text_secondary) lc.text_secondary = _req.body.light_text_secondary;
+  if (_req.body.light_text_muted) lc.text_muted = _req.body.light_text_muted;
+  if (_req.body.light_border_light) lc.border_light = _req.body.light_border_light;
+  if (_req.body.light_accent) lc.accent = _req.body.light_accent;
+  if (_req.body.light_accent_hover) lc.accent_hover = _req.body.light_accent_hover;
+  if (_req.body.light_navbar_bg) lc.navbar_bg = _req.body.light_navbar_bg;
+  if (_req.body.light_navbar_text) lc.navbar_text = _req.body.light_navbar_text;
+  if (_req.body.light_navbar_text_hover) lc.navbar_text_hover = _req.body.light_navbar_text_hover;
+  if (_req.body.light_footer_bg) lc.footer_bg = _req.body.light_footer_bg;
+  if (_req.body.light_radius) lc.radius = _req.body.light_radius;
+  if (_req.body.light_radius_sm) lc.radius_sm = _req.body.light_radius_sm;
+  // Dark colors
+  const dc = t.colors.dark;
+  if (_req.body.dark_bg_primary) dc.bg_primary = _req.body.dark_bg_primary;
+  if (_req.body.dark_bg_card) dc.bg_card = _req.body.dark_bg_card;
+  if (_req.body.dark_text_primary) dc.text_primary = _req.body.dark_text_primary;
+  if (_req.body.dark_text_secondary) dc.text_secondary = _req.body.dark_text_secondary;
+  if (_req.body.dark_text_muted) dc.text_muted = _req.body.dark_text_muted;
+  if (_req.body.dark_border_light) dc.border_light = _req.body.dark_border_light;
+  if (_req.body.dark_accent) dc.accent = _req.body.dark_accent;
+  if (_req.body.dark_accent_hover) dc.accent_hover = _req.body.dark_accent_hover;
+  if (_req.body.dark_navbar_bg) dc.navbar_bg = _req.body.dark_navbar_bg;
+  if (_req.body.dark_navbar_text) dc.navbar_text = _req.body.dark_navbar_text;
+  if (_req.body.dark_navbar_text_hover) dc.navbar_text_hover = _req.body.dark_navbar_text_hover;
+  if (_req.body.dark_footer_bg) dc.footer_bg = _req.body.dark_footer_bg;
+  if (_req.body.dark_radius) dc.radius = _req.body.dark_radius;
+  if (_req.body.dark_radius_sm) dc.radius_sm = _req.body.dark_radius_sm;
+  saveTheme(t);
+  res.render('admin/theme', { pageTitle: 'تخصيص الثيم', theme: t, success: '✅ تم حفظ الثيم بنجاح' });
 });
 
 // ---------- 404 ----------

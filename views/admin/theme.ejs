@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-sidebar { width: 220px; background: #1a1a1a; color: #fff; padding: 2rem 1rem; }
+    .admin-sidebar h2 { font-size: 1.2rem; margin-bottom: 2rem; }
+    .admin-sidebar a { display: block; color: #ccc; padding: 0.6rem 0; border-bottom: 1px solid #333; }
+    .admin-sidebar a:hover { color: #fff; }
+    .admin-content { flex: 1; padding: 2rem; background: #e9ecef; }
+    .admin-content h1 { font-size: 1.8rem; margin-bottom: 1.5rem; }
+    .theme-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-weight: 600; }
+    .theme-form { max-width: 800px; }
+    .theme-section { background: #fff; border: 1px solid #d1d5db; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .theme-section h3 { font-size: 1.2rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e5e7eb; }
+    .theme-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .theme-tab { padding: 0.6rem 1.5rem; border: 1px solid #d1d5db; background: #f3f4f6; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all .2s; }
+    .theme-tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .theme-tab:hover:not(.active) { background: #e5e7eb; }
+    .theme-tab-content { display: none; }
+    .theme-tab-content.active { display: block; }
+    .theme-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.8rem; }
+    .theme-field label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.3rem; color: #374151; }
+    .theme-field input[type="text"], .theme-field input[type="color"] { width: 100%; padding: 0.5rem 0.7rem; border: 1.5px solid #d1d5db; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box; }
+    .theme-field input[type="color"] { height: 42px; padding: 3px; cursor: pointer; }
+    .theme-field input:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+    .theme-actions { display: flex; gap: 1rem; margin-top: 1rem; }
+    .theme-actions button { padding: 0.8rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .2s; }
+    .btn-save { background: #10b981; color: #fff; }
+    .btn-save:hover { background: #059669; }
+    .btn-reset { background: #6b7280; color: #fff; }
+    .btn-reset:hover { background: #4b5563; }
+    .full-width { grid-column: 1 / -1; }
+    @media (max-width: 600px) { .theme-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div class="admin-sidebar">
+      <h2>AURA VEEX</h2>
+      <a href="/admin">📊 المنتجات</a>
+      <a href="/admin/orders">📋 الطلبات</a>
+      <a href="/admin/stats">📈 الإحصائيات</a>
+      <a href="/admin/products/add">➕ إضافة منتج</a>
+      <a href="/admin/theme">🎨 الثيم</a>
+      <a href="/">🏠 المتجر</a>
+      <a href="/admin/logout">🚪 خروج</a>
+    </div>
+    <div class="admin-content">
+      <h1>🎨 تخصيص الثيم</h1>
+      <% if (success) { %><div class="theme-success"><%= success %></div><% } %>
+      <form action="/admin/theme" method="POST" class="theme-form">
+        <div class="theme-section">
+          <h3>العام</h3>
+          <div class="theme-row">
+            <div class="theme-field">
+              <label>اسم الثيم</label>
+              <input type="text" name="theme_label" value="<%= theme.label %>">
+            </div>
+            <div class="theme-field">
+              <label>نوع الشعار</label>
+              <select name="logo_type" style="width:100%;padding:0.5rem 0.7rem;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.9rem;">
+                <option value="text" <%= theme.logo.type === 'text' ? 'selected' : '' %>>نص</option>
+                <option value="image" <%= theme.logo.type === 'image' ? 'selected' : '' %>>صورة</option>
+              </select>
+            </div>
+          </div>
+          <div class="theme-row">
+            <div class="theme-field">
+              <label>نص الشعار</label>
+              <input type="text" name="logo_text" value="<%= theme.logo.text %>">
+            </div>
+            <div class="theme-field">
+              <label>رابط الشعار (صورة)</label>
+              <input type="text" name="logo_image" value="<%= theme.logo.image %>" placeholder="/uploads/logo.png">
+            </div>
+          </div>
+          <div class="theme-row">
+            <div class="theme-field">
+              <label>أيقونة المتصفح (favicon)</label>
+              <input type="text" name="favicon" value="<%= theme.favicon %>">
+            </div>
+          </div>
+        </div>
+
+        <div class="theme-section">
+          <h3>الخطوط</h3>
+          <div class="theme-row">
+            <div class="theme-field">
+              <label>خط النصوص (body)</label>
+              <input type="text" name="font_body" value="<%= theme.fonts.body %>">
+            </div>
+            <div class="theme-field">
+              <label>خط العناوين (heading)</label>
+              <input type="text" name="font_heading" value="<%= theme.fonts.heading %>">
+            </div>
+          </div>
+          <div class="theme-row">
+            <div class="theme-field">
+              <label>حجم الخط الأساسي</label>
+              <input type="text" name="font_size_base" value="<%= theme.fonts.size_base %>">
+            </div>
+            <div class="theme-field">
+              <label>حجم خط العناوين</label>
+              <input type="text" name="font_size_heading" value="<%= theme.fonts.size_heading %>">
+            </div>
+          </div>
+        </div>
+
+        <div class="theme-tabs">
+          <div class="theme-tab active" onclick="switchTab('light', this)">☀️ الوضع النهاري</div>
+          <div class="theme-tab" onclick="switchTab('dark', this)">🌙 الوضع الليلي</div>
+        </div>
+
+        <div id="tab-light" class="theme-tab-content active">
+          <div class="theme-section">
+            <h3>الألوان — الوضع النهاري</h3>
+            <div class="theme-row">
+              <div class="theme-field"><label>خلفية الصفحة</label><input type="color" name="light_bg_primary" value="<%= theme.colors.light.bg_primary %>"></div>
+              <div class="theme-field"><label>خلفية البطاقات</label><input type="color" name="light_bg_card" value="<%= theme.colors.light.bg_card %>"></div>
+            </div>
+            <div class="theme-row">
+              <div class="theme-field"><label>لون النص الرئيسي</label><input type="color" name="light_text_primary" value="<%= theme.colors.light.text_primary %>"></div>
+              <div class="theme-field"><label>لون النص الثانوي</label><input type="color" name="light_text_secondary" value="<%= theme.colors.light.text_secondary %>"></div>
+            </div>
+            <div class="theme-row">
+              <div class="theme-field"><label>لون النص الخافت</label><input type="color" name="light_text_muted" value="<%= theme.colors.light.text_muted %>"></div>
+              <div class="theme-field"><label>لون الحدود</label><input type="color" name="light_border_light" value="<%= theme.colors.light.border_light %>"></div>
+            </div>
+            <div class="theme-row">
+              <div class="theme-field"><label>اللون الأساسي (accent)</label><input type="color" name="light_accent" value="<%= theme.colors.light.accent %>"></div>
+              <div class="theme-field"><label>اللون الأساسي (hover)</label><input type="color" name="light_accent_hover" value="<%= theme.colors.light.accent_hover %>"></div>
+            </div>
+            <div class="theme-row">
+              <div class="theme-field"><label>خلفية الشريط العلوي (navbar)</label><input type="color" name="light_navbar_bg" value="<%= theme.colors.light.navbar_bg %>"></div>
+              <div class="theme-field"><label>لون نص الشريط العلوي</label><input type="color" name="light_navbar_text" value="<%= theme.colors.light.navbar_text %>"></div>
+            </div>
+            <div class="theme-row">
+              <div class="theme-field"><label>لون نص الشريط (hover)</label><input type="color" name="light_navbar_text_hover" value="<%= theme.colors.light.navbar_text_hover %>"></div>
+              <div class="theme-field"><label>خلفية الفوتر</label><input type="color" name="light_footer_bg" value="<%= theme.colors.light.footer_bg %>"></div>
+            </div>
+            <div class="theme-row">
+              <div class="theme-field"><label>نصف قطر الزوايا</label><input type="text" name="light_radius" value="<%= theme.colors.light.radius %>"></div>
+              <div class="theme-field"><label>نصف قطر الزوايا الصغير</label><input type="text" name="light_radius_sm" value="<%= theme.colors.light.radius_sm %>"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-dark" class="theme-tab-content">
+          <div class="theme-section">
+            <h3>الألوان — الوضع الليلي</h3>
+            <div class="theme-row">
+              <div class="theme-field"><label>خلفية الصفحة</label><input type="color" name="dark_bg_primary" value="<%= theme.colors.dark.bg_primary %>"></div>
+              <div class="theme-field"><label>خلفية البطاقات</label><input type="color" name="dark_bg_card" value="<%= theme.colors.dark.bg_card %>"></div>
+            </div>
+            <div class="theme-row">
+              <div class="theme-field"><label>لون النص الرئيسي</label><input type="color" name="dark_text_primary" value="<%= theme.colors.dark.text_primary %>"></div>
+              <div class="theme-field"><label>لون النص الثانوي</label><input type="color" name="dark_text_secondary" value="<%= theme.colors.dark.text_secondary %>"></div>
+            </div>
+            <div class="theme-row">
+              <div class="theme-field"><label>لون النص الخافت</label><input type="color" name="dark_text_muted" value="<%= theme.colors.dark.text_muted %>"></div>
+              <div class="theme-field"><label>لون الحدود</label><input type="color" name="dark_border_light" value="<%= theme.colors.dark.border_light %>"></div>
+            </div>
+            <div class="theme-row">
+              <div class="theme-field"><label>اللون الأساسي (accent)</label><input type="color" name="dark_accent" value="<%= theme.colors.dark.accent %>"></div>
+              <div class="theme-field"><label>اللون الأساسي (hover)</label><input type="color" name="dark_accent_hover" value="<%= theme.colors.dark.accent_hover %>"></div>
+            </div>
+            <div class="theme-row">
+              <div class="theme-field"><label>خلفية الشريط العلوي</label><input type="color" name="dark_navbar_bg" value="<%= theme.colors.dark.navbar_bg %>"></div>
+              <div class="theme-field"><label>لون نص الشريط العلوي</label><input type="color" name="dark_navbar_text" value="<%= theme.colors.dark.navbar_text %>"></div>
+            </div>
+            <div class="theme-row">
+              <div class="theme-field"><label>لون نص الشريط (hover)</label><input type="color" name="dark_navbar_text_hover" value="<%= theme.colors.dark.navbar_text_hover %>"></div>
+              <div class="theme-field"><label>خلفية الفوتر</label><input type="color" name="dark_footer_bg" value="<%= theme.colors.dark.footer_bg %>"></div>
+            </div>
+            <div class="theme-row">
+              <div class="theme-field"><label>نصف قطر الزوايا</label><input type="text" name="dark_radius" value="<%= theme.colors.dark.radius %>"></div>
+              <div class="theme-field"><label>نصف قطر الزوايا الصغير</label><input type="text" name="dark_radius_sm" value="<%= theme.colors.dark.radius_sm %>"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theme-actions">
+          <button type="submit" class="btn-save">💾 حفظ الثيم</button>
+          <a href="/" class="btn-reset" style="display:inline-block;padding:0.8rem 2rem;border-radius:8px;text-decoration:none;font-weight:700;">👁️ معاينة المتجر</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+    function switchTab(tab, btn) {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.theme-tab-content').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+    }
+  </script>
+</body>
+</html>

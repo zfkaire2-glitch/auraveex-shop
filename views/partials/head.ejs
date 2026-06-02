@@ -14,5 +14,8 @@
 <link rel="canonical" href="<%= canonicalUrl || 'https://auraveex-shop.onrender.com' + (currentPath || '/') %>">
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
 <link rel="stylesheet" href="/style.css">
+<% if (typeof themeCSS !== 'undefined' && themeCSS) { %>
+  <style><%- themeCSS %></style>
+<% } %>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">

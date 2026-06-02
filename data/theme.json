@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "label": "الثيم الافتراضي",
+  "logo": {
+    "type": "text",
+    "text": "AURA VEEX",
+    "image": ""
+  },
+  "favicon": "/favicon.ico",
+  "fonts": {
+    "body": "'Cairo', 'Segoe UI', Tahoma, sans-serif",
+    "heading": "'Cairo', 'Segoe UI', Tahoma, sans-serif",
+    "size_base": "18px",
+    "size_heading": "2rem"
+  },
+  "colors": {
+    "light": {
+      "bg_primary": "#f4f4f4",
+      "bg_card": "#ffffff",
+      "text_primary": "#1a1a1a",
+      "text_secondary": "#555555",
+      "text_muted": "#888888",
+      "border_light": "#e0e0e0",
+      "accent": "#6366f1",
+      "accent_hover": "#4f46e5",
+      "navbar_bg": "#111111",
+      "navbar_text": "#bbbbbb",
+      "navbar_text_hover": "#ffffff",
+      "footer_bg": "#111111",
+      "radius": "12px",
+      "radius_sm": "8px"
+    },
+    "dark": {
+      "bg_primary": "#121212",
+      "bg_card": "#1e1e1e",
+      "text_primary": "#e0e0e0",
+      "text_secondary": "#aaaaaa",
+      "text_muted": "#888888",
+      "border_light": "#333333",
+      "accent": "#818cf8",
+      "accent_hover": "#6366f1",
+      "navbar_bg": "#111111",
+      "navbar_text": "#bbbbbb",
+      "navbar_text_hover": "#ffffff",
+      "footer_bg": "#111111",
+      "radius": "12px",
+      "radius_sm": "8px"
+    }
+  }
+}
