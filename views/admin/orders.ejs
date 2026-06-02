@@ -55,19 +55,18 @@
       <h1>📋 الطلبات (<%= orders.length %>)</h1>
 
       <% if (orders.length > 0) { %>
-        <form id="batchForm" action="/admin/orders/delete-batch" method="POST" onsubmit="return confirm('حذف الطلبات المحددة؟ هذا لا رجع فيه.')">
           <div class="toolbar">
             <label class="select-all-label">
               <input type="checkbox" id="selectAll" onclick="document.querySelectorAll('.order-checkbox').forEach(c => c.checked = this.checked)">
               تحديد الكل
             </label>
-            <button type="submit" class="btn-batch-del">🗑️ حذف المحدد</button>
+            <button type="button" class="btn-batch-del" onclick="batchDelete()">🗑️ حذف المحدد</button>
           </div>
 
           <% orders.forEach(o => { %>
             <div class="order-card">
               <div class="checkbox-col">
-                <input type="checkbox" name="ids" value="<%= o.id %>" class="order-checkbox">
+                <input type="checkbox" value="<%= o.id %>" class="order-checkbox">
               </div>
               <div class="card-main">
                 <div class="order-card-header">
@@ -113,11 +112,23 @@
               </div>
             </div>
           <% }) %>
-        </form>
       <% } else { %>
         <p style="text-align:center;color:#888;padding:3rem 0;">لا توجد طلبات بعد</p>
       <% } %>
     </div>
   </div>
+  <script>
+    function batchDelete() {
+      const checked = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(c => c.value);
+      if (checked.length === 0) { alert('اختر طلبات للحذف أولاً.'); return; }
+      if (!confirm('حذف ' + checked.length + ' طلب؟ هذا لا رجع فيه.')) return;
+      const f = document.createElement('form');
+      f.method = 'POST';
+      f.action = '/admin/orders/delete-batch';
+      checked.forEach(id => { const i = document.createElement('input'); i.type = 'hidden'; i.name = 'ids'; i.value = id; f.appendChild(i); });
+      document.body.appendChild(f);
+      f.submit();
+    }
+  </script>
 </body>
 </html>
