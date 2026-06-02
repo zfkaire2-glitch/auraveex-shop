@@ -26,146 +26,200 @@
 </head>
 <body>
   <%- include('partials/header') %>
-  <main class="product-main">
-    <div class="product-container">
-      <div class="product-gallery">
-        <div class="main-image" onclick="openLightbox()" style="cursor:zoom-in">
-          <div class="image-wrapper">
+
+  <main class="sp-main">
+    <div class="sp-container">
+      <!-- Gallery -->
+      <div class="sp-gallery">
+        <div class="sp-gallery-main" onclick="openLightbox()">
+          <div class="sp-image-wrap">
             <img src="<%= (product.images && product.images[0]) || '/images/placeholder.svg' %>" alt="<%= product.name %>" id="mainImg">
           </div>
-        </div>
-        <% if (product.images && product.images.length > 1) { %>
-          <div class="thumbnails">
-            <% product.images.forEach((img, i) => { %>
-              <img src="<%= img %>" alt="" class="thumb <%= i === 0 ? 'active' : '' %>" onclick="switchImage(this.src, this)">
-            <% }) %>
-          </div>
-        <% } %>
-      </div>
-      <div class="product-info">
-        <div class="breadcrumbs">
-          <a href="/">الرئيسية</a>
-          <span>›</span>
-          <a href="/products">المنتجات</a>
-          <span>›</span>
-          <span><%= product.name %></span>
-        </div>
-        <p class="product-vendor"><%= product.category %></p>
-        <h1 class="product-title"><%= product.name %></h1>
-        <div class="product-price">
-          <span class="price-current"><%= product.price.toLocaleString() %> د.ج</span>
           <% if (product.oldPrice) { %>
-            <span class="price-old"><%= product.oldPrice.toLocaleString() %> د.ج</span>
+            <span class="sp-badge">-<%= Math.round((1 - product.price / product.oldPrice) * 100) %>%</span>
           <% } %>
         </div>
-        <div class="product-description">
-          <%- product.description.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>') %>
+        <% if (product.images && product.images.length > 1) { %>
+          <div class="sp-thumbs">
+            <% product.images.forEach((img, i) => { %>
+              <button class="sp-thumb <%= i === 0 ? 'active' : '' %>" onclick="switchImage(this, '<%= img %>')">
+                <img src="<%= img %>" alt="">
+              </button>
+            <% }) %>
+          </div>
+        <% } else if (product.images && product.images.length === 1) { %>
+          <div class="sp-thumbs"><button class="sp-thumb active"><img src="<%= product.images[0] %>" alt=""></button></div>
+        <% } %>
+      </div>
+
+      <!-- Info -->
+      <div class="sp-info">
+        <p class="sp-vendor"><%= product.category %></p>
+        <h1 class="sp-title"><%= product.name %></h1>
+        <div class="sp-price-row">
+          <span class="sp-current"><%= product.price.toLocaleString() %> <small>د.ج</small></span>
+          <% if (product.oldPrice) { %>
+            <span class="sp-old"><%= product.oldPrice.toLocaleString() %> د.ج</span>
+            <span class="sp-save">وفر <%= (product.oldPrice - product.price).toLocaleString() %> د.ج</span>
+          <% } %>
         </div>
-        <form action="/cart/add" method="POST" class="product-form">
+
+        <!-- Size -->
+        <form action="/cart/add" method="POST" class="sp-form">
           <input type="hidden" name="id" value="<%= product.id %>">
-          <div class="form-row">
-            <label for="size">المقاس</label>
-            <div class="size-options">
+          <div class="sp-field">
+            <label>المقاس <span class="sp-required">*</span></label>
+            <div class="sp-sizes">
               <% product.sizes.forEach(s => { %>
-                <label class="size-btn">
+                <label class="sp-size-btn">
                   <input type="radio" name="size" value="<%= s %>" <%= s === product.sizes[0] ? 'checked' : '' %> required>
                   <span><%= s %></span>
                 </label>
               <% }) %>
             </div>
           </div>
-          <div class="form-row">
-            <label for="quantity">الكمية</label>
-            <div class="quantity-selector">
-              <button type="button" class="qty-btn" onclick="decreaseQty()">−</button>
+
+          <!-- Quantity -->
+          <div class="sp-field">
+            <label>الكمية</label>
+            <div class="sp-qty">
+              <button type="button" class="sp-qty-btn" onclick="decQty()">−</button>
               <input type="number" name="quantity" id="qtyInput" value="1" min="1" max="99">
-              <button type="button" class="qty-btn" onclick="increaseQty()">+</button>
+              <button type="button" class="sp-qty-btn" onclick="incQty()">+</button>
             </div>
           </div>
-          <div class="form-actions">
-            <button type="submit" class="btn-add">أضف إلى السلة</button>
-            <a href="#" onclick="orderWhatsApp()" class="btn-whatsapp">💬 اطلب عبر واتساب</a>
+
+          <!-- Buttons -->
+          <div class="sp-actions">
+            <button type="submit" class="sp-btn sp-btn-add">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              أضف إلى السلة
+            </button>
+            <button type="button" class="sp-btn sp-btn-whatsapp" onclick="orderWhatsApp()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              اطلب عبر واتساب
+            </button>
           </div>
         </form>
-        <div class="product-extras">
-          <div class="extra-item">✅ الدفع عند الاستلام</div>
-          <div class="extra-item">🚚 التوصيل عبر Yalidine لباب المنزل</div>
-          <div class="extra-item">🔄 الإرجاع خلال 7 أيام</div>
+
+        <!-- Accordion Details -->
+        <div class="sp-accordion">
+          <details class="sp-details" open>
+            <summary class="sp-summary">الوصف</summary>
+            <div class="sp-desc"><%- product.description.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>') %></div>
+          </details>
+          <details class="sp-details">
+            <summary class="sp-summary">معلومات التوصيل</summary>
+            <div class="sp-desc">
+              <p>🚚 التوصيل عبر <strong>Yalidine</strong> لباب المنزل.</p>
+              <p>📍 التوصيل متوفر لجميع ولايات الجزائر.</p>
+              <p>💰 الدفع عند الاستلام (Cash on Delivery).</p>
+              <p>⏱ مدة التوصيل: 2–5 أيام عمل حسب الولاية.</p>
+            </div>
+          </details>
+          <details class="sp-details">
+            <summary class="sp-summary">الإرجاع والاستبدال</summary>
+            <div class="sp-desc">
+              <p>🔄 يمكنك إرجاع أو استبدال المنتج خلال <strong>7 أيام</strong> من الاستلام.</p>
+              <p>✅ يجب أن يكون المنتج بحالته الأصلية.</p>
+              <p>📞 للتواصل: <a href="https://wa.me/213551600923">0551600923</a></p>
+            </div>
+          </details>
         </div>
-        <div class="share-section">
-          <span>⬇️ مشاركة:</span>
-          <div class="share-buttons">
-            <a href="#" onclick="shareWhatsApp()" class="share-btn" title="مشاركة عبر واتساب">📱</a>
-            <a href="#" onclick="shareFacebook()" class="share-btn" title="مشاركة عبر فيسبوك">📘</a>
-            <a href="#" onclick="copyLink()" class="share-btn" title="نسخ الرابط">🔗</a>
-          </div>
+
+        <!-- Trust -->
+        <div class="sp-trust">
+          <div class="sp-trust-item"><span>✅</span> دفع آمن عند الاستلام</div>
+          <div class="sp-trust-item"><span>🚚</span> توصيل عبر Yalidine</div>
+          <div class="sp-trust-item"><span>🔄</span> إرجاع مجاني 7 أيام</div>
+        </div>
+
+        <!-- Share -->
+        <div class="sp-share">
+          <span>مشاركة:</span>
+          <button onclick="shareWhatsApp()" class="sp-share-btn" title="واتساب">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </button>
+          <button onclick="shareFacebook()" class="sp-share-btn" title="فيسبوك">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </button>
+          <button onclick="copyLink()" class="sp-share-btn" title="نسخ الرابط">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </button>
         </div>
       </div>
     </div>
+
+    <!-- Suggested Products -->
+    <% if (suggested && suggested.length > 0) { %>
+      <section class="sp-suggested">
+        <h2>قد يعجبك أيضاً</h2>
+        <div class="sp-suggested-grid">
+          <% suggested.forEach(p => { %>
+            <a href="/product/<%= p.id %>" class="sp-card">
+              <div class="sp-card-img">
+                <img src="<%= p.images[0] %>" alt="<%= p.name %>">
+              </div>
+              <div class="sp-card-body">
+                <h3><%= p.name %></h3>
+                <div class="sp-card-price">
+                  <span><%= p.price.toLocaleString() %> د.ج</span>
+                  <% if (p.oldPrice) { %><del><%= p.oldPrice.toLocaleString() %> د.ج</del><% } %>
+                </div>
+              </div>
+            </a>
+          <% }) %>
+        </div>
+      </section>
+    <% } %>
   </main>
-  <% if (suggested && suggested.length > 0) { %>
-    <section class="suggested-section">
-      <h2>قد يعجبك أيضاً</h2>
-      <div class="suggested-grid">
-        <% suggested.forEach(p => { %>
-          <a href="/product/<%= p.id %>" class="product-card">
-            <img src="<%= p.images[0] %>" alt="<%= p.name %>">
-            <h3><%= p.name %></h3>
-            <div class="price">
-              <span class="current"><%= p.price.toLocaleString() %> د.ج</span>
-              <% if (p.oldPrice) { %>
-                <span class="old"><%= p.oldPrice.toLocaleString() %> د.ج</span>
-              <% } %>
-            </div>
-          </a>
-        <% }) %>
-      </div>
-    </section>
-  <% } %>
+
   <%- include('partials/footer') %>
 
-  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-    <span class="lightbox-close">&times;</span>
-    <div class="lightbox-content" onclick="event.stopPropagation()">
+  <!-- Sticky mobile cart bar -->
+  <div class="sp-sticky" id="stickyBar">
+    <div class="sp-sticky-inner">
+      <div class="sp-sticky-price"><%= product.price.toLocaleString() %> د.ج</div>
+      <button class="sp-btn sp-btn-add sp-sticky-btn" onclick="document.querySelector('.sp-form').submit()">أضف إلى السلة</button>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="sp-lightbox" onclick="closeLightbox()">
+    <span class="sp-lightbox-close">&times;</span>
+    <div class="sp-lightbox-content" onclick="event.stopPropagation()">
       <img src="" id="lightboxImg" alt="">
-      <div class="lightbox-nav">
-        <button class="lightbox-btn" onclick="changeImage(-1)">&#10094;</button>
+      <div class="sp-lightbox-nav">
+        <button class="sp-lightbox-btn" onclick="changeImage(-1)">&#10094;</button>
         <span id="lightboxCounter"></span>
-        <button class="lightbox-btn" onclick="changeImage(1)">&#10095;</button>
+        <button class="sp-lightbox-btn" onclick="changeImage(1)">&#10095;</button>
       </div>
     </div>
   </div>
 
   <script>
-    const images = [
-      <% if (product.images) { product.images.forEach((img, i) => { %>
-        '<%= img %>'<%= i < product.images.length - 1 ? ',' : '' %>
-      <% }) } %>
-    ];
+    const images = [<% if (product.images) { product.images.forEach((img, i) => { %>'<%= img %>'<%= i < product.images.length - 1 ? ',' : '' %><% }) } %>];
     let currentIdx = 0;
 
     function openLightbox() {
       currentIdx = images.findIndex(img => document.getElementById('mainImg').src.endsWith(img));
-      showLightboxImage();
+      if (currentIdx < 0) currentIdx = 0;
+      showLightboxImg();
       document.getElementById('lightbox').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
-
     function closeLightbox() {
       document.getElementById('lightbox').classList.remove('open');
       document.body.style.overflow = '';
     }
-
-    function showLightboxImage() {
+    function showLightboxImg() {
       document.getElementById('lightboxImg').src = images[currentIdx];
       document.getElementById('lightboxCounter').textContent = (currentIdx + 1) + ' / ' + images.length;
     }
-
     function changeImage(dir) {
       currentIdx = (currentIdx + dir + images.length) % images.length;
-      showLightboxImage();
+      showLightboxImg();
     }
-
     document.addEventListener('keydown', function(e) {
       if (!document.getElementById('lightbox').classList.contains('open')) return;
       if (e.key === 'Escape') closeLightbox();
@@ -173,8 +227,14 @@
       if (e.key === 'ArrowRight') changeImage(1);
     });
 
-    function increaseQty() { var el = document.getElementById('qtyInput'); el.value = Math.min(99, parseInt(el.value || 0) + 1); }
-    function decreaseQty() { var el = document.getElementById('qtyInput'); el.value = Math.max(1, parseInt(el.value || 1) - 1); }
+    function incQty() { var el = document.getElementById('qtyInput'); el.value = Math.min(99, parseInt(el.value || 0) + 1); }
+    function decQty() { var el = document.getElementById('qtyInput'); el.value = Math.max(1, parseInt(el.value || 1) - 1); }
+
+    function switchImage(btn, src) {
+      document.getElementById('mainImg').src = src;
+      document.querySelectorAll('.sp-thumb').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+    }
 
     function shareWhatsApp() { window.open('https://wa.me/?text=' + encodeURIComponent('<%= product.name %> - AURA VEEX\n' + window.location.href), '_blank'); }
     function shareFacebook() { window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank'); }
@@ -191,19 +251,13 @@
       window.open('https://wa.me/213551600923?text=' + encodeURIComponent(msg), '_blank');
     }
 
-    function switchImage(src, thumb) {
-      const wrapper = document.querySelector('.image-wrapper');
-      const img = document.getElementById('mainImg');
-      wrapper.classList.add('fade-out');
-      setTimeout(() => {
-        img.src = src;
-        wrapper.classList.remove('fade-out');
-        wrapper.classList.add('fade-in');
-        setTimeout(() => wrapper.classList.remove('fade-in'), 300);
-      }, 200);
-      document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
-      thumb.classList.add('active');
-    }
+    // Sticky bar on scroll
+    var stickyBar = document.getElementById('stickyBar');
+    var lastY = 0;
+    window.addEventListener('scroll', function() {
+      if (window.innerWidth > 768) return;
+      stickyBar.classList.toggle('sp-sticky-show', window.scrollY > 200);
+    });
   </script>
 </body>
 </html>
