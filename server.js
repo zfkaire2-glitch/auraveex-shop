@@ -700,6 +700,9 @@ app.use((err, _req, res, _next) => {
 
 app.listen(PORT, () => {
   console.log(`Worker ${process.pid} running on http://localhost:${PORT}`);
+  // Self-ping every 10 min to prevent Render sleep
+  const selfUrl = 'http://localhost:' + PORT + '/ping';
+  setInterval(() => { fetch(selfUrl).catch(() => {}); }, 10 * 60 * 1000);
 });
 }
 
@@ -713,8 +716,6 @@ if (cluster.isPrimary && process.env.NODE_ENV !== 'development') {
     console.log(`Worker ${worker.process.pid} died (${signal || code}), restarting...`);
     cluster.fork();
   });
-  // Keep-alive: self-ping every 10 min so Render doesn't sleep
-  setInterval(() => { fetch('http://localhost:' + PORT + '/ping').catch(() => {}); }, 10 * 60 * 1000);
 } else {
   startWorker();
 }
