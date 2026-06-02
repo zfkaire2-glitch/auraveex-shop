@@ -405,6 +405,12 @@ app.post('/admin/orders/delete/:id', requireAdmin, (_req, res) => {
   res.redirect('/admin/orders');
 });
 
+app.post('/admin/orders/delete-batch', requireAdmin, (_req, res) => {
+  const ids = _req.body.ids || [];
+  if (ids.length > 0) store.deleteOrders(Array.isArray(ids) ? ids : [ids]);
+  res.redirect('/admin/orders');
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`E-commerce store running on http://localhost:${PORT}`);

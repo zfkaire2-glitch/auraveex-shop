@@ -121,3 +121,11 @@ export function deleteOrder(id) {
   writeFileSync(ORDERS_PATH, JSON.stringify(filtered, null, 2), 'utf-8');
   return true;
 }
+
+export function deleteOrders(ids) {
+  const orders = getOrders();
+  const filtered = orders.filter(o => !ids.includes(o.id));
+  if (filtered.length === orders.length) return false;
+  writeFileSync(ORDERS_PATH, JSON.stringify(filtered, null, 2), 'utf-8');
+  return true;
+}
