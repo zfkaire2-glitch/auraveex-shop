@@ -841,9 +841,14 @@ app.use((err, _req, res, _next) => {
 
 app.listen(PORT, () => {
   console.log(`Worker ${process.pid} running on http://localhost:${PORT}`);
-  // Self-ping every 10 min to prevent Render sleep
-  const selfUrl = 'http://localhost:' + PORT + '/ping';
-  setInterval(() => { fetch(selfUrl).catch(() => {}); }, 10 * 60 * 1000);
+  // Self-ping every 5 min to prevent Render sleep
+  const selfUrl = process.env.RENDER_EXTERNAL_URL || 'http://localhost:' + PORT;
+  setInterval(() => {
+    fetch(selfUrl + '/ping')
+      .then(() => console.log('Self-ping OK'))
+      .catch(() => {});
+  }, 5 * 60 * 1000);
+  console.log('Self-ping ' + selfUrl + '/ping every 5 min');
 });
 }
 
