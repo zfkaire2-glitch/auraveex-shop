@@ -94,10 +94,10 @@ html[data-theme="dark"] .theme-toggle .moon-icon { display: block; }
 /* Categories */
 .categories { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 3rem; }
 .category-card {
-  background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 14px;
-  padding: 1.4rem 3rem; font-size: 1.2rem; font-weight: 600; transition: all .3s; color: #e0e0e0; letter-spacing: 0.5px;
+  background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 14px;
+  padding: 1.4rem 3rem; font-size: 1.2rem; font-weight: 600; transition: all .3s; color: var(--text-primary); letter-spacing: 0.5px;
 }
-.category-card:hover { border-color: #fff; color: #fff; background: var(--bg-dark-hover); box-shadow: 0 4px 20px rgba(0,0,0,.3); transform: translateY(-2px); }
+.category-card:hover { border-color: var(--accent); color: var(--accent); background: var(--bg-card); box-shadow: var(--shadow-md); transform: translateY(-2px); }
 
 /* Products Grid */
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 2rem; }
