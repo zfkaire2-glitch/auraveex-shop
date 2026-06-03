@@ -6,61 +6,25 @@
 <body>
   <%- include('partials/header') %>
   <main>
-    <section class="hero" style="background:linear-gradient(to bottom,rgba(0,0,0,.35),rgba(0,0,0,.55)),url('<%= heroImage %>') center/cover no-repeat">
-      <div class="hero-badge">🇩🇿 متجر جزائري 100%</div>
-      <h1>AURA <span>VEEX</span></h1>
-      <p>Elevate Your Style — Premium Streetwear &amp; Urban Fashion</p>
-      <a href="/products" class="btn">تسوق الآن</a>
-      <div class="hero-stats">
-        <span>⭐ جودة عالية</span>
-        <span>🚚 توصيل لباب المنزل</span>
-        <span>💳 الدفع عند الاستلام</span>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>الأقسام</h2>
-      <div class="categories">
-        <% categories.forEach(cat => { %>
-          <a href="/products?category=<%= encodeURIComponent(cat) %>" class="category-card">
-            <%= cat %>
-          </a>
-        <% }) %>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>منتجات مميزة</h2>
-      <div class="products-grid">
-        <% products.forEach(p => { %>
-          <a href="/product/<%= p.id %>" class="product-card">
-            <div class="product-card-img">
-              <img src="<%= p.images[0] %>" alt="<%= p.name %>" class="img-primary">
-              <% if (p.images[1]) { %><img src="<%= p.images[1] %>" alt="<%= p.name %>" class="img-secondary"><% } %>
-            </div>
-            <h3><%= p.name %></h3>
-            <div class="price">
-              <span class="current"><%= p.price.toLocaleString() %> د.ج</span>
-              <% if (p.oldPrice) { %>
-                <span class="old"><%= p.oldPrice.toLocaleString() %> د.ج</span>
-              <% } %>
-            </div>
-          </a>
-        <% }) %>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>لماذا AURA VEEX؟</h2>
-      <div class="trust-badges">
-        <div class="trust-badge"><span class="icon">🇩🇿</span> منتجات أصلية مستوردة</div>
-        <div class="trust-badge"><span class="icon">🚚</span> توصيل عبر Yalidine</div>
-        <div class="trust-badge"><span class="icon">💳</span> الدفع عند الاستلام</div>
-        <div class="trust-badge"><span class="icon">🔄</span> إرجاع خلال 7 أيام</div>
-        <div class="trust-badge"><span class="icon">📞</span> دعم عبر واتساب</div>
-        <div class="trust-badge"><span class="icon">⭐</span> جودة عالية</div>
-      </div>
-    </section>
+    <% (sections || []).forEach(function(s) { %>
+      <% if (s.type === 'hero') { %>
+        <%- include('partials/section-hero', { section: s }) %>
+      <% } else if (s.type === 'categories') { %>
+        <%- include('partials/section-categories', { section: s, categories: categories }) %>
+      <% } else if (s.type === 'featured_products') { %>
+        <%- include('partials/section-featured-products', { section: s, products: products }) %>
+      <% } else if (s.type === 'trust_badges') { %>
+        <%- include('partials/section-trust-badges', { section: s }) %>
+      <% } else if (s.type === 'text_block') { %>
+        <%- include('partials/section-text-block', { section: s }) %>
+      <% } else if (s.type === 'image_banner') { %>
+        <%- include('partials/section-image-banner', { section: s }) %>
+      <% } else if (s.type === 'divider') { %>
+        <%- include('partials/section-divider', { section: s }) %>
+      <% } else if (s.type === 'custom_html') { %>
+        <%- include('partials/section-custom-html', { section: s }) %>
+      <% } %>
+    <% }) %>
   </main>
   <%- include('partials/footer') %>
 </body>

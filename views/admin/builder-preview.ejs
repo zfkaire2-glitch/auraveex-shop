@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <%- include('../partials/head') %>
+  <link rel="stylesheet" href="/builder.css">
+  <style>
+    body { pointer-events: auto !important; }
+    [data-section-id] { cursor: pointer; position: relative; }
+    [data-section-id]:hover::after {
+      content: ''; position: absolute; inset: 0;
+      outline: 2px dashed var(--accent); outline-offset: -2px;
+      pointer-events: none; z-index: 10;
+    }
+    .section-active::after {
+      content: ''; position: absolute; inset: 0;
+      outline: 2px solid var(--accent) !important; outline-offset: -2px;
+      background: rgba(212,168,83,0.05);
+      pointer-events: none; z-index: 10;
+    }
+    .builder-edit-btn {
+      position: absolute; top: 8px; left: 8px; z-index: 11;
+      background: var(--accent); color: #fff; border: none;
+      padding: 4px 10px; border-radius: 6px; font-size: 12px;
+      cursor: pointer; display: none; font-family: var(--font-main);
+    }
+    [data-section-id]:hover .builder-edit-btn { display: block; }
+  </style>
+</head>
+<body>
+  <%- include('../partials/header') %>
+  <main>
+    <% (sections || []).forEach(function(s) { %>
+      <div style="position:relative" data-section-id="<%= s.id %>" data-section-type="<%= s.type %>">
+        <% if (s.type === 'hero') { %>
+          <%- include('../partials/section-hero', { section: s }) %>
+        <% } else if (s.type === 'categories') { %>
+          <%- include('../partials/section-categories', { section: s, categories: categories }) %>
+        <% } else if (s.type === 'featured_products') { %>
+          <%- include('../partials/section-featured-products', { section: s, products: products }) %>
+        <% } else if (s.type === 'trust_badges') { %>
+          <%- include('../partials/section-trust-badges', { section: s }) %>
+        <% } else if (s.type === 'text_block') { %>
+          <%- include('../partials/section-text-block', { section: s }) %>
+        <% } else if (s.type === 'image_banner') { %>
+          <%- include('../partials/section-image-banner', { section: s }) %>
+        <% } else if (s.type === 'divider') { %>
+          <%- include('../partials/section-divider', { section: s }) %>
+        <% } else if (s.type === 'custom_html') { %>
+          <%- include('../partials/section-custom-html', { section: s }) %>
+        <% } %>
+        <button class="builder-edit-btn" onclick="window.parent.postMessage({type:'sectionClicked',sectionId:'<%= s.id %>'},'*')">تعديل</button>
+      </div>
+    <% }) %>
+  </main>
+  <%- include('../partials/footer') %>
+  <script>
+    (function() {
+      var activeId = null;
+      window.addEventListener('message', function(e) {
+        var d = e.data;
+        if (!d) return;
+        if (d.type === 'highlightSection') {
+          if (activeId) {
+            var prev = document.querySelector('[data-section-id="'+activeId+'"]');
+            if (prev) prev.classList.remove('section-active');
+          }
+          activeId = d.sectionId;
+          if (activeId) {
+            var el = document.querySelector('[data-section-id="'+activeId+'"]');
+            if (el) el.classList.add('section-active');
+          }
+        }
+        if (d.type === 'refreshPreview') {
+          location.href = location.href.split('?')[0] + '?t=' + Date.now();
+        }
+      });
+      document.addEventListener('click', function(e) {
+        var el = e.target.closest('[data-section-id]');
+        if (el) {
+          window.parent.postMessage({ type: 'sectionClicked', sectionId: el.dataset.sectionId }, '*');
+        }
+      });
+      window.parent.postMessage({ type: 'previewReady' }, '*');
+    })();
+  </script>
+</body>
+</html>

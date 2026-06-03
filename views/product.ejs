@@ -252,10 +252,8 @@
 
     function buyNow() {
       var form = document.querySelector('.sp-form');
-      var fd = new FormData(form);
-      fetch(form.action, { method: 'POST', body: fd })
-        .then(function() { window.location.href = '/checkout'; })
-        .catch(function() { form.submit(); });
+      form.action = '/cart/buy';
+      form.submit();
     }
 
     function orderWhatsApp() {

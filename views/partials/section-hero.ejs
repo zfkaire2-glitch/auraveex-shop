@@ -1,0 +1,11 @@
+<section class="hero" id="section-<%= section.id %>" data-section-id="<%= section.id %>" data-section-type="hero" style="background:linear-gradient(to bottom,rgba(0,0,0,.35),rgba(0,0,0,.55)),url('<%= section.settings.backgroundImage || heroImage %>') center/cover no-repeat">
+  <div class="hero-badge"><%= section.settings.badge %></div>
+  <h1><%- section.settings.title %></h1>
+  <p><%= section.settings.subtitle %></p>
+  <a href="<%= section.settings.ctaLink %>" class="btn"><%= section.settings.ctaText %></a>
+  <div class="hero-stats">
+    <% (section.settings.stats || []).forEach(function(s) { %>
+      <span><%= s.icon %> <%= s.title %></span>
+    <% }) %>
+  </div>
+</section>

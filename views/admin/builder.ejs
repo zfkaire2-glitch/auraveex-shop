@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Builder — AURA VEEX</title>
+  <link rel="stylesheet" href="/builder.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Toolbar -->
+  <header class="bdr-toolbar">
+    <div class="bdr-toolbar-left">
+      <a href="/admin" class="bdr-back">← الرجوع للأدمن</a>
+      <h1 class="bdr-title">Page Builder</h1>
+    </div>
+    <div class="bdr-toolbar-right">
+      <span class="bdr-status" id="bdrStatus">كل التغييرات محفوظة</span>
+      <a href="/" target="_blank" class="bdr-btn bdr-btn-outline">👁 عرض الموقع</a>
+      <button class="bdr-btn bdr-btn-primary" id="bdrBtnSave">💾 حفظ التغييرات</button>
+    </div>
+  </header>
+
+  <!-- Main Area -->
+  <div class="bdr-main">
+    <!-- Preview (left) -->
+    <div class="bdr-preview">
+      <iframe src="/admin/builder/preview?t=<%= Date.now() %>" id="bdrPreviewFrame" name="previewFrame"></iframe>
+    </div>
+    <!-- Panel (right) -->
+    <aside class="bdr-panel" id="bdrPanel">
+      <div class="bdr-panel-empty" id="bdrPanelEmpty">
+        <div class="bdr-panel-empty-icon">👆</div>
+        <p>اختر قسماً للتعديل</p>
+        <p class="bdr-panel-hint">اضغط على أي قسم في المعاينة لتعديل محتواه</p>
+        <p class="bdr-panel-hint" style="margin-top:8px">أو اسحب tabs الأقسام بالأسفل لإعادة الترتيب</p>
+      </div>
+      <div class="bdr-panel-content" id="bdrPanelContent" style="display:none">
+        <div class="bdr-panel-header">
+          <h3 id="bdrSectionLabel">القسم</h3>
+          <div class="bdr-panel-actions">
+            <button class="bdr-btn-icon" id="bdrBtnToggle" title="إظهار/إخفاء القسم">👁</button>
+            <button class="bdr-btn-icon" id="bdrBtnDuplicate" title="نسخ القسم">📋</button>
+            <button class="bdr-btn-icon bdr-btn-icon-danger" id="bdrBtnDelete" title="حذف القسم">🗑</button>
+          </div>
+        </div>
+        <div class="bdr-panel-fields" id="bdrPanelFields"></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Sections Bar -->
+  <div class="bdr-sections-bar">
+    <div class="bdr-sections-list" id="bdrSectionsList"></div>
+    <button class="bdr-btn bdr-btn-outline" id="bdrBtnAdd">+ إضافة قسم</button>
+  </div>
+
+  <!-- Add Section Modal -->
+  <div class="bdr-modal-overlay" id="bdrModalOverlay" style="display:none"></div>
+  <div class="bdr-modal" id="bdrModal" style="display:none">
+    <div class="bdr-modal-header">
+      <h2>إضافة قسم جديد</h2>
+      <button class="bdr-btn-icon" id="bdrBtnCloseModal">✕</button>
+    </div>
+    <div class="bdr-modal-grid" id="bdrModalGrid"></div>
+    <div style="padding:12px 20px;border-top:1px solid #333;text-align:center">
+      <p style="font-size:13px;color:#888">اختر نوع القسم اللي تحب تضيفه</p>
+    </div>
+  </div>
+
+  <script>
+    var __sections = <%- JSON.stringify(sections) %>;
+  </script>
+  <script src="/builder.js"></script>
+</body>
+</html>

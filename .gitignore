@@ -6,4 +6,9 @@ cookies*.txt
 start-hidden.vbs
 .vscode/
 *.json.old
+*.json.bak
 vaulted-sector-*.json
+.agents/skills/
+data/orders.json
+
+scripts/shopify-products.json

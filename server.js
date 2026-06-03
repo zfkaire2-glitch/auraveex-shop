@@ -204,6 +204,16 @@ function saveTheme(t) {
   writeFileSync(join(__dirname, 'data', 'theme.json'), JSON.stringify(t, null, 2), 'utf8');
 }
 
+function getPages() {
+  try {
+    return JSON.parse(readFileSync(join(__dirname, 'data', 'pages.json'), 'utf8'));
+  } catch { return { homepage: { sections: [] } }; }
+}
+
+function savePages(p) {
+  writeFileSync(join(__dirname, 'data', 'pages.json'), JSON.stringify(p, null, 2), 'utf8');
+}
+
 function themeCSSVars(theme) {
   const c = theme.colors.light;
   const d = theme.colors.dark;
@@ -340,11 +350,14 @@ app.get('/', (_req, res) => {
   const products = store.getProducts();
   const categories = [...new Set(products.map(p => p.category))];
   const featured = products.slice(0, 4);
+  const pages = getPages();
+  const sections = pages.homepage?.sections || [];
   res.render('index', {
     pageTitle: 'الرئيسية',
-    pageDescription: 'AURA VEEX — متجر ألبسة جزائرية متخصص في الأطقم الأوفرサイズ والستريت وير المستوردة. جودة عالية، أسعار منافسة، توصيل عبر Yalidine لباب المنزل.',
+    pageDescription: 'AURA VEEX — متجر ألبسة جزائرية متخصص في الأطقم الأوفر سايز والستريت وير المستوردة. جودة عالية، أسعار منافسة، توصيل عبر Yalidine لباب المنزل.',
     products: featured,
     categories,
+    sections,
     cartCount: (_req.session.cart || []).reduce((a, i) => a + i.quantity, 0),
   });
 });
@@ -412,6 +425,28 @@ app.post('/cart/add', (_req, res) => {
     });
   }
   res.redirect('/cart');
+});
+
+// Buy now: add to cart and go to checkout
+app.post('/cart/buy', (_req, res) => {
+  const product = store.getProduct(_req.body.id);
+  if (!product) return res.redirect('/products');
+  if (!_req.session.cart) _req.session.cart = [];
+  const existing = _req.session.cart.find(i => i.id === product.id && i.size === _req.body.size);
+  const qty = parseInt(_req.body.quantity) || 1;
+  if (existing) {
+    existing.quantity += qty;
+  } else {
+    _req.session.cart.push({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+      size: _req.body.size || product.sizes[0],
+      quantity: qty,
+    });
+  }
+  res.redirect('/checkout');
 });
 
 app.post('/cart/update', (_req, res) => {
@@ -508,6 +543,14 @@ app.post('/checkout', async (_req, res) => {
   if (!_req.session.orders) _req.session.orders = [];
   _req.session.orders.push(order);
   _req.session.cart = [];
+  res.redirect('/thank-you?order=' + order.id);
+});
+
+app.get('/thank-you', (_req, res) => {
+  const orderId = _req.query.order;
+  if (!orderId) return res.redirect('/');
+  const order = store.getOrders().find(o => o.id === orderId);
+  if (!order) return res.redirect('/');
   res.render('order', { order, cartCount: 0 });
 });
 
@@ -857,6 +900,44 @@ app.post('/admin/theme', requireAdmin, (_req, res) => {
   if (_req.body.dark_radius_sm) dc.radius_sm = _req.body.dark_radius_sm;
   saveTheme(t);
   res.render('admin/theme', { pageTitle: 'تخصيص الثيم', theme: t, success: '✅ تم حفظ الثيم بنجاح' });
+});
+
+// ---------- Page Builder ----------
+
+app.get('/admin/builder', requireAdmin, (_req, res) => {
+  const pages = getPages();
+  const sections = pages.homepage?.sections || [];
+  res.render('admin/builder', {
+    pageTitle: 'Page Builder',
+    sections,
+  });
+});
+
+app.get('/admin/builder/preview', (_req, res) => {
+  const products = store.getProducts();
+  const categories = [...new Set(products.map(p => p.category))];
+  const featured = products.slice(0, 4);
+  const pages = getPages();
+  const sections = pages.homepage?.sections || [];
+  res.render('admin/builder-preview', {
+    pageTitle: 'معاينة',
+    products: featured,
+    categories,
+    sections,
+    cartCount: 0,
+  });
+});
+
+app.post('/admin/builder/save', requireAdmin, (_req, res) => {
+  const pages = getPages();
+  if (_req.body.sections) {
+    pages.homepage = pages.homepage || {};
+    pages.homepage.sections = _req.body.sections;
+    savePages(pages);
+    res.json({ success: true });
+  } else {
+    res.json({ success: false, error: 'No sections data' });
+  }
 });
 
 // ---------- 404 ----------

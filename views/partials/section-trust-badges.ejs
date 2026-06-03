@@ -1,0 +1,8 @@
+<section class="section" id="section-<%= section.id %>" data-section-id="<%= section.id %>" data-section-type="trust_badges">
+  <h2><%= section.settings.heading %></h2>
+  <div class="trust-badges">
+    <% (section.settings.badges || []).forEach(function(b) { %>
+      <div class="trust-badge"><span class="icon"><%= b.icon %></span> <%= b.title %></div>
+    <% }) %>
+  </div>
+</section>

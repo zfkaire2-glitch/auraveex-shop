@@ -1,0 +1,4 @@
+<section class="section" id="section-<%= section.id %>" data-section-id="<%= section.id %>" data-section-type="text_block" style="text-align:<%= section.settings.alignment || 'center' %>">
+  <% if (section.settings.heading) { %><h2><%= section.settings.heading %></h2><% } %>
+  <% if (section.settings.content) { %><div class="text-block-content"><%- section.settings.content %></div><% } %>
+</section>

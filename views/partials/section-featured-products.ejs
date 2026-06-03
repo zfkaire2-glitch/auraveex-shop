@@ -1,0 +1,19 @@
+<section class="section" id="section-<%= section.id %>" data-section-id="<%= section.id %>" data-section-type="featured_products">
+  <h2><%= section.settings.heading %></h2>
+  <div class="products-grid">
+    <% var fp = (products || []).slice(0, section.settings.count || 4); %>
+    <% fp.forEach(function(p) { %>
+      <a href="/product/<%= p.id %>" class="product-card">
+        <div class="product-card-img">
+          <img src="<%= p.images[0] %>" alt="<%= p.name %>" class="img-primary">
+          <% if (p.images[1]) { %><img src="<%= p.images[1] %>" alt="<%= p.name %>" class="img-secondary"><% } %>
+        </div>
+        <h3><%= p.name %></h3>
+        <div class="price">
+          <span class="current"><%= p.price.toLocaleString() %> د.ج</span>
+          <% if (p.oldPrice) { %><span class="old"><%= p.oldPrice.toLocaleString() %> د.ج</span><% } %>
+        </div>
+      </a>
+    <% }) %>
+  </div>
+</section>
