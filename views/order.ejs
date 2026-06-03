@@ -1,76 +1,78 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تم الطلب - AURA VEEX</title>
-  <link rel="stylesheet" href="/style.css">
+  <%- include('partials/head') %>
+  <style>
+    .order-success { max-width: 650px; margin: 0 auto; text-align: center; }
+    .order-success h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .order-success .order-id { color: var(--text-muted); margin-bottom: 1rem; font-size: 0.95rem; }
+    .order-success .order-id span { color: var(--accent); font-weight: 700; }
+    .order-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 2rem; margin: 1.5rem 0; text-align: right; box-shadow: var(--shadow-sm); }
+    .order-card h3 { font-size: 1.1rem; margin-bottom: 1rem; }
+    .order-info { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.8; }
+    .order-item-line, .order-total-line { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 0.95rem; }
+    .order-total-line { border-top: 1px solid var(--border-light); margin-top: 0.5rem; padding-top: 1rem; font-weight: 700; font-size: 1.1rem; color: var(--text-primary); }
+    .steps-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.8rem; margin: 1rem 0; text-align: right; box-shadow: var(--shadow-sm); }
+    .steps-card h4 { font-size: 1rem; margin-bottom: 1rem; }
+    .step-item { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step-text { font-size: 0.9rem; color: var(--text-secondary); }
+    .step-text strong { color: var(--text-primary); }
+    .track-card { background: var(--bg-card); border: 1px solid #d1fae5; border-radius: var(--radius-lg); padding: 1.5rem; margin: 1rem 0; text-align: right; box-shadow: var(--shadow-sm); }
+    .track-card h4 { font-size: 1rem; margin-bottom: 0.6rem; color: #059669; }
+    .track-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; }
+    .track-card a { color: var(--accent); font-weight: 700; }
+    .call-phone { font-size: 1rem; color: var(--text-primary); margin: 0.5rem 0 1.5rem; }
+    .call-phone strong { color: var(--accent); font-size: 1.1rem; letter-spacing: 1px; direction: ltr; display: inline-block; }
+  </style>
 </head>
 <body>
   <%- include('partials/header') %>
   <main class="section">
     <div class="order-success">
-      <h1>شكراً لك على طلبك ✅</h1>
-      <p>رقم الطلب: <strong><%= order.id %></strong></p>
-      <p style="font-size:1.15rem;margin-top:1rem;">فريقنا رايح يتصل بك من <strong>9 صباحاً حتى 22 ليلاً</strong> باش ياكد معاك الطلبية 🚀</p>
-      <p style="font-size:1.1rem;margin-bottom:1.5rem;">📞 رقم الفريق: <strong>0551600923</strong></p>
-      <% if (order.trackingCode) { %>
-        <p>رمز التتبع Yalidine: <strong><%= order.trackingCode %></strong></p>
-      <% } %>
-      <h3>تفاصيل الطلب</h3>
-      <div class="order-details">
-        <div style="margin-bottom:0.9rem;color:#555;line-height:2;">
+      <h1>شكراً لك ✅</h1>
+      <p class="order-id">رقم الطلب: <span><%= order.id %></span></p>
+      <p style="color:var(--text-secondary);font-size:0.95rem;">سنتصل بك قريباً لتأكيد الطلب 🚀</p>
+      <p class="call-phone">📞 <strong>0551600923</strong></p>
+
+      <div class="order-card">
+        <h3>تفاصيل الطلب</h3>
+        <div class="order-info">
           <div>👤 <%= order.firstName %> <%= order.lastName %></div>
           <div>📞 <%= order.phone %></div>
           <div>📍 <%= order.address %><%= order.commune ? '، ' + order.commune : '' %>، <%= order.wilaya %></div>
         </div>
         <% order.items.forEach(item => { %>
-          <div class="order-item">
+          <div class="order-item-line">
             <span><%= item.name %> x<%= item.quantity %></span>
             <span><%= (item.price * item.quantity).toLocaleString() %> د.ج</span>
           </div>
         <% }) %>
         <% if (order.deliveryPrice) { %>
-          <div class="order-item">
-            <span>التوصيل (لباب المنزل)</span>
+          <div class="order-item-line">
+            <span>التوصيل</span>
             <span><%= order.deliveryPrice.toLocaleString() %> د.ج</span>
           </div>
         <% } %>
-        <div class="order-total">
+        <div class="order-total-line">
           <span>المجموع الكلي</span>
           <span><%= order.total.toLocaleString() %> د.ج</span>
         </div>
       </div>
-      <div style="margin-top:1.5rem;padding:1.2rem;background:#f9f9f9;border-radius:12px;border:1px solid #e0e0e0;">
-        <h4 style="margin:0 0 0.8rem;font-size:1.1rem;">📋 ماذا بعد؟</h4>
-        <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.95rem;color:#555;">
-          <div style="display:flex;align-items:center;gap:0.6rem;">
-            <span style="background:#1a1a1a;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;">1</span>
-            <span>📦 <strong>طلبيتك</strong> مسجلة عندنا</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:0.6rem;">
-            <span style="background:#1a1a1a;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;">2</span>
-            <span>📞 فريقنا يتصل بك من <strong style="direction:ltr;display:inline-block;">0551600923</strong></span>
-          </div>
-          <div style="display:flex;align-items:center;gap:0.6rem;">
-            <span style="background:#1a1a1a;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;">3</span>
-            <span>✅ نأكد معاك الطلبية</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:0.6rem;">
-            <span style="background:#1a1a1a;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;">4</span>
-            <span>🚚 توصلك لباب الدار عبر <strong>Yalidine</strong> في <strong>1 إلى 3 أيام</strong></span>
-          </div>
-        </div>
+
+      <div class="steps-card">
+        <h4>📋 ماذا بعد؟</h4>
+        <div class="step-item"><span class="step-num">1</span><span class="step-text">📦 طلبيتك <strong>مسجلة</strong> عندنا</span></div>
+        <div class="step-item"><span class="step-num">2</span><span class="step-text">📞 فريقنا يتصل بك من <strong>0551600923</strong></span></div>
+        <div class="step-item"><span class="step-num">3</span><span class="step-text">✅ نأكد معاك الطلبية</span></div>
+        <div class="step-item"><span class="step-num">4</span><span class="step-text">🚚 توصلك عبر <strong>Yalidine</strong> في <strong>1–3 أيام</strong></span></div>
       </div>
 
-      <div style="margin-top:1rem;padding:1.2rem;background:#e8f5e9;border-radius:12px;border:1px solid #c8e6c9;">
-        <h4 style="margin:0 0 0.6rem;font-size:1.05rem;">📦 كيفاش تتتبع طردك؟</h4>
-        <div style="font-size:0.95rem;color:#2e7d32;line-height:1.8;">
-          <div>1️⃣ روح لـ <a href="/track" style="font-weight:700;color:#1565c0;">صفحة التتبع</a> فـ موقعنا</div>
-          <div>2️⃣ دخل <strong>رقم هاتفك</strong> اللي طلبت بيه</div>
-          <div>3️⃣ بيانلك طلبيتك — إذا كاين <strong>رمز تتبع</strong>، انقر على "📦 تتبع الطرد" باش تشوف وين راه فـ Yalidine</div>
-        </div>
+      <div class="track-card">
+        <h4>📦 تتبع الطرد</h4>
+        <p>روح لـ <a href="/track">صفحة التتبع</a>، دخل رقم هاتفك، وبيانلك طلبيتك مع رمز التتبع 😊</p>
       </div>
+
       <a href="/products" class="btn">متابعة التسوق</a>
     </div>
   </main>

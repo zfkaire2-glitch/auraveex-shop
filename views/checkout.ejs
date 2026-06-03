@@ -6,53 +6,62 @@
 <body>
   <%- include('partials/header') %>
   <main class="checkout-page">
-    <div class="checkout-container">
+    <div class="checkout-header">
+      <h1>AURA <span>VEEX</span> — إتمام الطلب</h1>
+    </div>
+    <div class="checkout-body">
       <div class="checkout-left">
-        <h1>معلومات التوصيل</h1>
         <% if (typeof error !== 'undefined' && error) { %>
           <div class="checkout-error"><%= error %></div>
         <% } %>
+        <div class="checkout-left-header">
+          <div class="step">1</div>
+          <h2>معلومات التوصيل</h2>
+        </div>
         <form action="/checkout" method="POST" class="checkout-form" onsubmit="return validateForm()">
           <div class="form-row">
             <div class="form-group">
-              <label>الاسم الشخصي *</label>
-              <input type="text" name="firstName" required>
+              <label>الاسم الشخصي <span class="required">*</span></label>
+              <input type="text" name="firstName" placeholder="محمد" required>
             </div>
             <div class="form-group">
-              <label>اللقب *</label>
-              <input type="text" name="lastName" required>
+              <label>اللقب <span class="required">*</span></label>
+              <input type="text" name="lastName" placeholder="أحمد" required>
             </div>
           </div>
           <div class="form-group">
-            <label>رقم الهاتف *</label>
-            <input type="tel" name="phone" required pattern="0[0-9]{9}" title="أدخل رقم هاتف صحيح يبدأ بـ 0 (مثال: 0555123456)">
+            <label>رقم الهاتف <span class="required">*</span></label>
+            <input type="tel" name="phone" placeholder="0555123456" required pattern="0[0-9]{9}" dir="ltr" title="أدخل رقم هاتف صحيح يبدأ بـ 0 (مثال: 0555123456)">
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>الولاية *</label>
+              <label>الولاية <span class="required">*</span></label>
               <select name="wilaya" id="wilayaSelect" required>
-                <option value="">اختر ولايتك</option>
+                <option value="">— اختر ولايتك —</option>
                 <% wilayas.forEach(w => { %>
                   <option value="<%= w.id %>"><%= w.name %></option>
                 <% }) %>
               </select>
             </div>
             <div class="form-group">
-              <label>البلدية *</label>
+              <label>البلدية <span class="required">*</span></label>
               <select name="commune" id="communeSelect" required>
                 <option value="">اختر الولاية أولاً</option>
               </select>
             </div>
           </div>
           <div class="form-group">
-            <label>العنوان الكامل *</label>
-            <textarea name="address" rows="3" required></textarea>
+            <label>العنوان الكامل <span class="required">*</span></label>
+            <textarea name="address" rows="2" placeholder="رقم، اسم الشارع، الحي..." required></textarea>
           </div>
           <button type="submit" class="checkout-submit">تأكيد الطلب</button>
         </form>
       </div>
       <div class="checkout-right">
-        <h2>ملخص الطلب</h2>
+        <div class="checkout-right-header">
+          <h3>ملخص الطلب</h3>
+          <span class="count"><%= cart.length %></span>
+        </div>
         <div class="checkout-items" id="checkoutItems">
           <% cart.forEach((item, idx) => { %>
             <div class="checkout-item" data-id="<%= item.id %>" data-size="<%= item.size %>">
@@ -62,13 +71,15 @@
                 <div class="checkout-item-meta">المقاس: <%= item.size %></div>
                 <div class="checkout-item-price"><%= item.price.toLocaleString() %> د.ج</div>
               </div>
-              <div class="checkout-item-qty">
-                <button type="button" class="qty-btn" onclick="updateQty(this, -1)">−</button>
-                <input type="number" class="qty-val" value="<%= item.quantity %>" min="0" readonly>
-                <button type="button" class="qty-btn" onclick="updateQty(this, 1)">+</button>
+              <div class="checkout-item-actions">
+                <div class="checkout-item-qty">
+                  <button type="button" class="qty-btn" onclick="updateQty(this, -1)">−</button>
+                  <input type="number" class="qty-val" value="<%= item.quantity %>" min="0" readonly>
+                  <button type="button" class="qty-btn" onclick="updateQty(this, 1)">+</button>
+                </div>
+                <div class="checkout-item-total"><%= (item.price * item.quantity).toLocaleString() %> د.ج</div>
+                <button type="button" class="checkout-item-remove" onclick="removeItem(this)" title="إزالة">✕</button>
               </div>
-              <div class="checkout-item-total"><%= (item.price * item.quantity).toLocaleString() %> د.ج</div>
-              <button type="button" class="checkout-item-remove" onclick="removeItem(this)" title="إزالة">✕</button>
             </div>
           <% }) %>
         </div>
@@ -78,15 +89,16 @@
             <span id="subtotalDisplay"><%= subtotal.toLocaleString() %> د.ج</span>
           </div>
           <div class="checkout-line" id="deliveryRow" style="display:none;">
-            <span>التوصيل</span>
+            <span>التوصيل (Yalidine)</span>
             <span id="deliveryPriceDisplay">0 د.ج</span>
           </div>
           <div class="checkout-line checkout-line-total">
-            <span>المجموع</span>
+            <span>المجموع الكلي</span>
             <span id="totalDisplay"><%= subtotal.toLocaleString() %> د.ج</span>
           </div>
         </div>
-        <p class="checkout-note">🚚 التوصيل لباب المنزل عبر Yalidine — الدفع عند الاستلام</p>
+        <p class="checkout-note">🚚 التوصيل لباب المنزل عبر Yalidine<br>💳 الدفع عند الاستلام</p>
+        <div class="checkout-secure">🔒 معلوماتك مشفرة وآمنة</div>
       </div>
     </div>
   </main>
