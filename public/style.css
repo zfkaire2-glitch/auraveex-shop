@@ -46,22 +46,6 @@ html:not([data-theme="dark"]) {
   --shadow-lg: 0 12px 32px rgba(0,0,0,.12);
 }
 
-html[data-theme="dark"] {
-  --bg-primary: #121212;
-  --bg-card: #1e1e1e;
-  --bg-dark: #e0e0e0;
-  --bg-dark-hover: #fff;
-  --btn-text: #1a1a1a;
-  --text-primary: #e0e0e0;
-  --text-secondary: #aaa;
-  --text-muted: #888;
-  --text-light: #666;
-  --border-light: #333;
-  --shadow-sm: 0 2px 8px rgba(0,0,0,.3);
-  --shadow-md: 0 4px 16px rgba(0,0,0,.4);
-  --shadow-lg: 0 12px 32px rgba(0,0,0,.5);
-}
-
 html { scroll-behavior: smooth; }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }

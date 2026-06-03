@@ -183,6 +183,8 @@ app.use((_req, _res, next) => {
   const activeTheme = getTheme();
   _res.locals.themeCSS = themeCSSVars(activeTheme);
   _res.locals.logoText = activeTheme.logo.type === 'text' ? activeTheme.logo.text : '';
+  _res.locals.logoImg = activeTheme.logo.type === 'image' ? activeTheme.logo.image || '' : '';
+  _res.locals.favicon = activeTheme.favicon || '';
   next();
 });
 
@@ -193,12 +195,12 @@ function requireAdmin(req, res, next) {
 
 function getTheme() {
   try {
-    return JSON.parse(readFileSync('./data/theme.json', 'utf8'));
+    return JSON.parse(readFileSync(join(__dirname, 'data', 'theme.json'), 'utf8'));
   } catch { return themeDefaults; }
 }
 
 function saveTheme(t) {
-  writeFileSync('./data/theme.json', JSON.stringify(t, null, 2), 'utf8');
+  writeFileSync(join(__dirname, 'data', 'theme.json'), JSON.stringify(t, null, 2), 'utf8');
 }
 
 function themeCSSVars(theme) {
@@ -208,6 +210,9 @@ function themeCSSVars(theme) {
   return `
 :root {
   --font-main: ${f.body};
+  --font-heading: ${f.heading};
+  --font-size-base: ${f.size_base};
+  --font-size-heading: ${f.size_heading};
   --bg-primary: ${c.bg_primary};
   --bg-card: ${c.bg_card};
   --bg-dark: ${c.navbar_bg};
@@ -224,6 +229,7 @@ function themeCSSVars(theme) {
   --btn-text: ${c.navbar_text};
   --accent: ${c.accent};
   --accent-hover: ${c.accent_hover};
+  --footer-bg: ${c.footer_bg};
   --radius-sm: ${c.radius_sm};
   --radius-md: ${c.radius};
   --radius-lg: ${c.radius};
@@ -232,6 +238,32 @@ function themeCSSVars(theme) {
   --shadow-md: 0 4px 16px rgba(0,0,0,.08);
   --shadow-lg: 0 12px 32px rgba(0,0,0,.12);
   --transition: all .3s cubic-bezier(.4,0,.2,1);
+}
+html[data-theme="dark"] {
+  --bg-primary: ${d.bg_primary};
+  --bg-card: ${d.bg_card};
+  --bg-dark: ${d.navbar_bg};
+  --bg-dark-hover: ${d.navbar_text_hover};
+  --bg: ${d.bg_card};
+  --text-primary: ${d.text_primary};
+  --text-secondary: ${d.text_secondary};
+  --text-muted: ${d.text_muted};
+  --text-light: ${d.navbar_text};
+  --text: ${d.text_primary};
+  --border-light: ${d.border_light};
+  --border-dark: ${d.navbar_bg};
+  --border: ${d.border_light};
+  --btn-text: ${d.navbar_text};
+  --accent: ${d.accent};
+  --accent-hover: ${d.accent_hover};
+  --footer-bg: ${d.footer_bg};
+  --radius-sm: ${d.radius_sm};
+  --radius-md: ${d.radius};
+  --radius-lg: ${d.radius};
+  --radius-xl: ${d.radius};
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.4);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,.5);
 }
 html[data-theme="dark"] {
   --bg-primary: ${d.bg_primary};
@@ -782,6 +814,7 @@ app.post('/admin/theme', requireAdmin, (_req, res) => {
   const t = getTheme();
   if (_req.body.logo_type) t.logo.type = _req.body.logo_type;
   if (_req.body.logo_text) t.logo.text = _req.body.logo_text;
+  if (_req.body.logo_image) t.logo.image = _req.body.logo_image;
   if (_req.body.favicon) t.favicon = _req.body.favicon;
   if (_req.body.font_body) t.fonts.body = _req.body.font_body;
   if (_req.body.font_heading) t.fonts.heading = _req.body.font_heading;

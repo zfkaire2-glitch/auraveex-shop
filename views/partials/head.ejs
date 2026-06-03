@@ -12,7 +12,7 @@
 <meta property="og:locale" content="ar_DZ">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="<%= canonicalUrl || 'https://auraveex-shop.onrender.com' + (currentPath || '/') %>">
-<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<link rel="icon" href="<%= typeof favicon !== 'undefined' && favicon ? favicon : '/favicon.ico' %>" type="image/x-icon">
 <link rel="stylesheet" href="/style.css">
 <% if (typeof themeCSS !== 'undefined' && themeCSS) { %>
   <style><%- themeCSS %></style>

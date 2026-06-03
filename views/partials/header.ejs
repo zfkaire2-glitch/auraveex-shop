@@ -1,6 +1,6 @@
 <header class="navbar">
   <div class="nav-inner">
-    <a href="/" class="logo"><%= typeof logoText !== 'undefined' && logoText ? logoText : 'AURA VEEX' %></a>
+    <a href="/" class="logo"><% if (typeof logoImg !== 'undefined' && logoImg) { %><img src="<%= logoImg %>" alt="AURA VEEX" style="height:40px;"><% } else { %><%= typeof logoText !== 'undefined' && logoText ? logoText : 'AURA VEEX' %><% } %></a>
     <nav>
       <a href="/">الرئيسية</a>
       <a href="/products">المنتجات</a>
