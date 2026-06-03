@@ -22,14 +22,14 @@
       "text_secondary": "#555555",
       "text_muted": "#888888",
       "border_light": "#e0e0e0",
-      "accent": "#D4A853",
+      "accent": "#d4a853",
       "accent_hover": "#c49a45",
       "navbar_bg": "#0a0a0a",
       "navbar_text": "#999999",
       "navbar_text_hover": "#ffffff",
       "footer_bg": "#0a0a0a",
-      "radius": "12px",
-      "radius_sm": "8px"
+      "radius": "22px",
+      "radius_sm": "18px"
     },
     "dark": {
       "bg_primary": "#0d0d0d",
@@ -38,7 +38,7 @@
       "text_secondary": "#aaaaaa",
       "text_muted": "#888888",
       "border_light": "#333333",
-      "accent": "#D4A853",
+      "accent": "#d4a853",
       "accent_hover": "#c49a45",
       "navbar_bg": "#0a0a0a",
       "navbar_text": "#999999",
