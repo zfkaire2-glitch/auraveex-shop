@@ -346,5 +346,38 @@
         "timestamp": "2026-06-02T15:38:37.555Z"
       }
     ]
+  },
+  {
+    "id": "ORD-AA10EA4E",
+    "firstName": "زكريا",
+    "lastName": "فقير",
+    "phone": "0551600923",
+    "address": "س",
+    "wilaya": "وهران",
+    "wilayaId": 31,
+    "commune": "بوفاتيس",
+    "items": [
+      {
+        "id": "zoro-green-swordsman-oversized-set-t-shirt-jogger-mpvl6s80",
+        "name": "ZORO GREEN SWORDSMAN – OVERSIZED SET (T-SHIRT + JOGGER)",
+        "price": 4600,
+        "image": "/uploads/1780342899852-lc4aot.webp",
+        "size": "S",
+        "quantity": 1
+      }
+    ],
+    "subtotal": 4600,
+    "deliveryPrice": 700,
+    "total": 5300,
+    "status": "جديد",
+    "trackingCode": null,
+    "createdAt": "2026-06-03T14:42:45.676Z",
+    "statusHistory": [
+      {
+        "from": "",
+        "to": "جديد",
+        "timestamp": "2026-06-03T14:42:45.676Z"
+      }
+    ]
   }
 ]
