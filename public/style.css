@@ -407,9 +407,14 @@ html[data-theme="dark"] .theme-toggle .moon-icon { display: block; }
 .sp-qty input { width: 60px; height: 42px; border: none; text-align: center; font-size: 1rem; font-weight: 700; background: var(--bg-card); color: var(--text-primary); -moz-appearance: textfield; }
 .sp-qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .sp-actions { display: flex; flex-direction: column; gap: 10px; margin: 1.5rem 0; }
-.sp-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 1rem; border: none; border-radius: var(--radius-md); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .2s; font-family: inherit; }
+.sp-actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.sp-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 1rem; border: none; border-radius: var(--radius-md); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .2s; font-family: inherit; will-change: transform; }
+.sp-btn:active { transform: scale(0.97); }
 .sp-btn-add { background: var(--accent); color: #fff; }
 .sp-btn-add:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.sp-btn-buy { background: var(--text-primary); color: var(--bg-card); border: 2px solid var(--accent); }
+.sp-btn-buy:hover { background: var(--accent); color: #fff; transform: translateY(-1px); }
 .sp-btn-whatsapp { background: #25D366; color: #fff; }
 .sp-btn-whatsapp:hover { background: #1da851; transform: translateY(-1px); }
 .sp-accordion { margin: 1.5rem 0; border-top: 1px solid var(--border-light); }
@@ -453,7 +458,8 @@ html[data-theme="dark"] .theme-toggle .moon-icon { display: block; }
 .sp-sticky-show { transform: translateY(0); }
 .sp-sticky-inner { display: flex; align-items: center; gap: 12px; max-width: 600px; margin: 0 auto; }
 .sp-sticky-price { font-size: 1.3rem; font-weight: 800; color: var(--accent); white-space: nowrap; }
-.sp-sticky-btn { width: auto; flex: 1; margin: 0; }
+.sp-sticky-btns { display: flex; gap: 8px; flex: 1; }
+.sp-sticky-btn { flex: 1; margin: 0; }
 
 /* ===== WhatsApp/Viber/Telegram Floats ===== */
 .whatsapp-float, .viber-float, .telegram-float {
