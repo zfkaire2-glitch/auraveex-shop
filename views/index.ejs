@@ -6,10 +6,10 @@
 <body>
   <%- include('partials/header') %>
   <main>
-    <section class="hero" style="background:linear-gradient(135deg,rgba(0,0,0,.7),rgba(0,0,0,.4)),url('/uploads/hero-eagle.jpg') center/cover no-repeat">
+    <section class="hero" style="background:linear-gradient(to bottom,rgba(0,0,0,.35),rgba(0,0,0,.55)),url('<%= heroImage %>') center/cover no-repeat">
       <div class="hero-badge">🇩🇿 متجر جزائري 100%</div>
-      <h1>AURA VEEX</h1>
-      <p>🔥 Elevate Your Style — Premium Streetwear & Urban Fashion 🖤</p>
+      <h1>AURA <span>VEEX</span></h1>
+      <p>Elevate Your Style — Premium Streetwear &amp; Urban Fashion</p>
       <a href="/products" class="btn">تسوق الآن</a>
       <div class="hero-stats">
         <span>⭐ جودة عالية</span>
@@ -34,7 +34,10 @@
       <div class="products-grid">
         <% products.forEach(p => { %>
           <a href="/product/<%= p.id %>" class="product-card">
-            <img src="<%= p.images[0] %>" alt="<%= p.name %>">
+            <div class="product-card-img">
+              <img src="<%= p.images[0] %>" alt="<%= p.name %>" class="img-primary">
+              <% if (p.images[1]) { %><img src="<%= p.images[1] %>" alt="<%= p.name %>" class="img-secondary"><% } %>
+            </div>
             <h3><%= p.name %></h3>
             <div class="price">
               <span class="current"><%= p.price.toLocaleString() %> د.ج</span>

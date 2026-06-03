@@ -158,7 +158,8 @@
           <% suggested.forEach(p => { %>
             <a href="/product/<%= p.id %>" class="sp-card">
               <div class="sp-card-img">
-                <img src="<%= p.images[0] %>" alt="<%= p.name %>">
+                <img src="<%= p.images[0] %>" alt="<%= p.name %>" class="img-primary">
+                <% if (p.images[1]) { %><img src="<%= p.images[1] %>" alt="<%= p.name %>" class="img-secondary"><% } %>
               </div>
               <div class="sp-card-body">
                 <h3><%= p.name %></h3>

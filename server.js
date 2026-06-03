@@ -185,6 +185,7 @@ app.use((_req, _res, next) => {
   _res.locals.logoText = activeTheme.logo.type === 'text' ? activeTheme.logo.text : '';
   _res.locals.logoImg = activeTheme.logo.type === 'image' ? activeTheme.logo.image || '' : '';
   _res.locals.favicon = activeTheme.favicon || '';
+  _res.locals.heroImage = activeTheme.hero_image || '/uploads/hero-eagle.jpg';
   next();
 });
 
@@ -816,6 +817,7 @@ app.post('/admin/theme', requireAdmin, (_req, res) => {
   if (_req.body.logo_text) t.logo.text = _req.body.logo_text;
   if (_req.body.logo_image) t.logo.image = _req.body.logo_image;
   if (_req.body.favicon) t.favicon = _req.body.favicon;
+  if (_req.body.hero_image) t.hero_image = _req.body.hero_image;
   if (_req.body.font_body) t.fonts.body = _req.body.font_body;
   if (_req.body.font_heading) t.fonts.heading = _req.body.font_heading;
   if (_req.body.font_size_base) t.fonts.size_base = _req.body.font_size_base;
