@@ -12,3 +12,9 @@ vaulted-sector-*.json
 data/orders.json
 
 scripts/shopify-products.json
+
+opencode.json*
+error.log
+server*.log
+cookies*.txt
+start-hidden.vbs

@@ -33,7 +33,7 @@
       <div class="sp-gallery">
         <div class="sp-gallery-main" onclick="openLightbox()">
           <div class="sp-image-wrap">
-            <img src="<%= (product.images && product.images[0]) || '/images/placeholder.svg' %>" alt="<%= product.name %>" id="mainImg">
+            <img src="<%= (product.images && product.images[0]) || '/images/placeholder.svg' %>" alt="<%= product.name %>" id="mainImg" fetchpriority="high">
           </div>
           <% if (product.oldPrice) { %>
             <span class="sp-badge">-<%= Math.round((1 - product.price / product.oldPrice) * 100) %>%</span>
@@ -164,8 +164,8 @@
           <% suggested.forEach(p => { %>
             <a href="/product/<%= p.id %>" class="sp-card">
               <div class="sp-card-img">
-                <img src="<%= p.images[0] %>" alt="<%= p.name %>" class="img-primary">
-                <% if (p.images[1]) { %><img src="<%= p.images[1] %>" alt="<%= p.name %>" class="img-secondary"><% } %>
+                <img src="<%= p.images[0] %>" alt="<%= p.name %>" class="img-primary" loading="lazy">
+                <% if (p.images[1]) { %><img src="<%= p.images[1] %>" alt="<%= p.name %>" class="img-secondary" loading="lazy"><% } %>
               </div>
               <div class="sp-card-body">
                 <h3><%= p.name %></h3>
@@ -196,13 +196,13 @@
 
   <!-- Lightbox -->
   <div id="lightbox" class="sp-lightbox" onclick="closeLightbox()">
-    <span class="sp-lightbox-close">&times;</span>
+    <span class="sp-lightbox-close" aria-label="إغلاق">&times;</span>
     <div class="sp-lightbox-content" onclick="event.stopPropagation()">
       <img src="" id="lightboxImg" alt="">
       <div class="sp-lightbox-nav">
-        <button class="sp-lightbox-btn" onclick="changeImage(-1)">&#10094;</button>
+        <button class="sp-lightbox-btn" onclick="changeImage(-1)" aria-label="السابق">&#10094;</button>
         <span id="lightboxCounter"></span>
-        <button class="sp-lightbox-btn" onclick="changeImage(1)">&#10095;</button>
+        <button class="sp-lightbox-btn" onclick="changeImage(1)" aria-label="التالي">&#10095;</button>
       </div>
     </div>
   </div>
@@ -248,7 +248,8 @@
 
     function shareWhatsApp() { window.open('https://wa.me/?text=' + encodeURIComponent('<%= product.name %> - AURA VEEX\n' + window.location.href), '_blank'); }
     function shareFacebook() { window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank'); }
-    function copyLink() { navigator.clipboard.writeText(window.location.href).then(function() { alert('تم نسخ الرابط!'); }); }
+    function copyLink() { navigator.clipboard.writeText(window.location.href).then(function() { showToast('تم نسخ الرابط!'); }); }
+function showToast(msg) { var t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:12px 24px;border-radius:50px;font-size:.9rem;z-index:99999;font-weight:600;transition:opacity .3s'; document.body.appendChild(t); setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){t.remove()},300) },2000); }
 
     function buyNow() {
       var form = document.querySelector('.sp-form');

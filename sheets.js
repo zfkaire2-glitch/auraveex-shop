@@ -68,8 +68,9 @@ export async function saveOrder(order) {
 
     await sheetsClient.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Orders!A2:N',
+      range: 'Orders!A:N',
       valueInputOption: 'RAW',
+      insertDataOption: 'INSERT_ROWS',
       requestBody: { values },
     });
     return true;

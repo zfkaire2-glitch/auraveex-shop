@@ -1,3 +1,7 @@
 User-agent: *
 Allow: /
-Sitemap: https://auraveex.com/sitemap.xml
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+
+Sitemap: https://auraveex-shop.onrender.com/sitemap.xml

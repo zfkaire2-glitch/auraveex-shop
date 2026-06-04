@@ -1,4 +1,4 @@
-import 'dotenv/config';
+﻿import 'dotenv/config';
 import express from 'express';
 import session from 'express-session';
 import multer from 'multer';
@@ -36,7 +36,15 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(compression());
-app.use(express.static(join(__dirname, 'public'), { maxAge: '1d' }));
+
+app.use(express.static(join(__dirname, 'public'), {
+  maxAge: '1d',
+  setHeaders: (res, _path, _stat) => {
+    res.set('X-Content-Type-Options', 'nosniff');
+    res.set('X-Frame-Options', 'DENY');
+    res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  }
+}));
 app.set('view engine', 'ejs');
 app.set('views', join(__dirname, 'views'));
 
@@ -170,6 +178,9 @@ app.get('/sitemap.xml', (_req, res) => {
 });
 
 app.use((_req, _res, next) => {
+  _res.setHeader('X-Content-Type-Options', 'nosniff');
+  _res.setHeader('X-Frame-Options', 'DENY');
+  _res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   _res.locals.customerPhone = _req.session.customerPhone || null;
   _res.locals.cartCount = (_req.session.cart || []).reduce((a, i) => a + i.quantity, 0);
   _res.locals.currentPath = _req.path;
@@ -354,7 +365,7 @@ app.get('/', (_req, res) => {
   const sections = pages.homepage?.sections || [];
   res.render('index', {
     pageTitle: 'الرئيسية',
-    pageDescription: 'AURA VEEX — متجر ألبسة جزائرية متخصص في الأطقم الأوفر سايز والستريت وير المستوردة. جودة عالية، أسعار منافسة، توصيل عبر Yalidine لباب المنزل.',
+    pageDescription: 'AURA VEEX — متجر ألبسة جزائرية متخصص في الأطقم الأوفر سايز والستريت وير المستوردة. جودة عالية، أسعار منافسة، توصيل عبر Yalidine لجميع ولايات الجزائر.',
     products: featured,
     categories,
     sections,
@@ -376,7 +387,7 @@ app.get('/products', (_req, res) => {
   const catDesc = category ? ' — ' + category : '';
   res.render('products', {
     pageTitle: 'المنتجات' + catDesc,
-    pageDescription: 'تصفح مجموعة AURA VEEX من الأطقم الأوفرサイ즈 والستريت وير المستوردة' + (category ? ' في قسم ' + category : ''),
+    pageDescription: 'تصفح أحدث تشكيلة AURA VEEX من الأطقم الأوفر سايز والستريت وير المستوردة بجودة عالية' + (category ? ' في قسم ' + category : ''),
     products: filtered,
     categories,
     allSizes,
@@ -940,6 +951,20 @@ app.post('/admin/builder/save', requireAdmin, (_req, res) => {
   }
 });
 
+// ---------- robots.txt ----------
+
+app.get('/robots.txt', (_req, res) => {
+  res.type('text/plain').send(`# robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+
+Sitemap: https://auraveex-shop.onrender.com/sitemap.xml
+`);
+});
+
 // ---------- 404 ----------
 
 app.use((_req, res) => {
@@ -982,3 +1007,4 @@ if (cluster.isPrimary && WORKERS > 0) {
 } else {
   startWorker();
 }
+

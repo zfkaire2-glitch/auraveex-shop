@@ -10,7 +10,11 @@
 <meta property="og:url" content="<%= canonicalUrl || 'https://auraveex-shop.onrender.com' + (currentPath || '/') %>">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ar_DZ">
+<meta property="og:site_name" content="AURA VEEX">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<%= ogTitle || pageTitle || 'AURA VEEX' %>">
+<meta name="twitter:description" content="<%= ogDescription || pageDescription || 'متجر ألبسة جزائرية أوفر سايز' %>">
+<meta name="twitter:image" content="<%= ogImage || '/uploads/hero-eagle.jpg' %>">
 <link rel="canonical" href="<%= canonicalUrl || 'https://auraveex-shop.onrender.com' + (currentPath || '/') %>">
 <link rel="icon" href="<%= typeof favicon !== 'undefined' && favicon ? favicon : '/favicon.ico' %>" type="image/x-icon">
 <link rel="stylesheet" href="/style.css">
@@ -18,4 +22,39 @@
   <style><%- themeCSS %></style>
 <% } %>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "AURA VEEX",
+  "url": "https://auraveex-shop.onrender.com",
+  "logo": "https://auraveex-shop.onrender.com/uploads/logo.png",
+  "sameAs": [
+    "https://wa.me/213551600923",
+    "https://t.me/+213551600923",
+    "https://www.instagram.com/auraveex"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+213-551-600-923",
+    "contactType": "customer service",
+    "areaServed": "DZ"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "AURA VEEX",
+  "url": "https://auraveex-shop.onrender.com",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://auraveex-shop.onrender.com/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+

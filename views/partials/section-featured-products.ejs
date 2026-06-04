@@ -2,11 +2,11 @@
   <h2><%= section.settings.heading %></h2>
   <div class="products-grid">
     <% var fp = (products || []).slice(0, section.settings.count || 4); %>
-    <% fp.forEach(function(p) { %>
-      <a href="/product/<%= p.id %>" class="product-card">
+    <% fp.forEach(function(p, idx) { %>
+      <a href="/product/<%= p.id %>" class="product-card" style="--card-index: <%= idx %>">
         <div class="product-card-img">
-          <img src="<%= p.images[0] %>" alt="<%= p.name %>" class="img-primary">
-          <% if (p.images[1]) { %><img src="<%= p.images[1] %>" alt="<%= p.name %>" class="img-secondary"><% } %>
+          <img src="<%= p.images[0] %>" alt="<%= p.name %>" class="img-primary" loading="lazy">
+          <% if (p.images[1]) { %><img src="<%= p.images[1] %>" alt="<%= p.name %>" class="img-secondary" loading="lazy"><% } %>
         </div>
         <h3><%= p.name %></h3>
         <div class="price">

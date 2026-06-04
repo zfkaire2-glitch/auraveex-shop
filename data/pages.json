@@ -9,18 +9,18 @@
         "settings": {
           "backgroundImage": "/uploads/hero-eagle.jpg",
           "badge": "🇩🇿 متجر جزائري 100%",
-          "title": "AURA <span>VEEX</span>",
-          "subtitle": "Elevate Your Style — Premium Streetwear & Urban Fashion",
+          "title": "<span>AURA VEEX</span>",
+          "subtitle": "أطقم أوفر سايز مستوردة بجودة عالية. نوصل لكل ولايات الجزائر عبر Yalidine.",
           "ctaText": "تسوق الآن",
           "ctaLink": "/products",
           "stats": [
             {
               "icon": "⭐",
-              "title": "جودة عالية"
+              "title": "+24 منتج متميز"
             },
             {
               "icon": "🚚",
-              "title": "توصيل لباب المنزل"
+              "title": "توصيل لجميع الولايات"
             },
             {
               "icon": "💳",
@@ -35,7 +35,7 @@
         "label": "الأقسام",
         "enabled": true,
         "settings": {
-          "heading": "الأقسام"
+          "heading": "تسوق حسب القسم"
         }
       },
       {
@@ -44,7 +44,7 @@
         "label": "منتجات مميزة",
         "enabled": true,
         "settings": {
-          "heading": "منتجات مميزة",
+          "heading": "أفضل المنتجات",
           "count": 4
         }
       },
@@ -58,27 +58,27 @@
           "badges": [
             {
               "icon": "🇩🇿",
-              "title": "منتجات أصلية مستوردة"
+              "title": "منتجات أصلية مستوردة من أفضل الماركات"
             },
             {
               "icon": "🚚",
-              "title": "توصيل عبر Yalidine"
+              "title": "توصيل عبر Yalidine لباب المنزل"
             },
             {
               "icon": "💳",
-              "title": "الدفع عند الاستلام"
+              "title": "الدفع عند الاستلام (بدون مخاطرة)"
             },
             {
               "icon": "🔄",
-              "title": "إرجاع خلال 7 أيام"
+              "title": "إرجاع واستبدال خلال 7 أيام"
             },
             {
               "icon": "📞",
-              "title": "دعم عبر واتساب"
+              "title": "دعم فوري عبر واتساب 0551600923"
             },
             {
               "icon": "⭐",
-              "title": "جودة عالية"
+              "title": "أكثر من 24 منتج بخامات ممتازة"
             }
           ]
         }

@@ -50,9 +50,9 @@
       </form>
     </div>
     <div class="products-grid">
-      <% products.forEach(p => { %>
-        <a href="/product/<%= p.id %>" class="product-card">
-          <img src="<%= p.images[0] %>" alt="<%= p.name %>">
+      <% products.forEach(function(p, idx) { %>
+        <a href="/product/<%= p.id %>" class="product-card" style="--card-index: <%= idx %>">
+          <img src="<%= p.images[0] %>" alt="<%= p.name %>" loading="lazy">
           <h3><%= p.name %></h3>
           <div class="price">
             <span class="current"><%= p.price.toLocaleString() %> د.ج</span>
