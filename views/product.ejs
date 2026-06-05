@@ -15,7 +15,7 @@
     "brand": { "@type": "Brand", "name": "AURA VEEX" },
     "offers": {
       "@type": "Offer",
-      "url": "https://auraveex-shop.onrender.com/product/<%= product.id %>",
+      "url": "<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://auraveex-shop.onrender.com/product/' + product.id %>",
       "priceCurrency": "DZD",
       "price": "<%= product.price %>",
       "availability": "https://schema.org/InStock",
