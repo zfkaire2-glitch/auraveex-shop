@@ -10,6 +10,7 @@ start-hidden.vbs
 vaulted-sector-*.json
 .agents/skills/
 data/orders.json
+data/customers.json
 
 scripts/shopify-products.json
 
