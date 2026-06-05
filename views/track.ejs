@@ -37,10 +37,10 @@
             <div>📍 <%= order.address %><%= order.commune ? '، ' + order.commune : '' %>، <%= order.wilaya %></div>
           </div>
           <div class="result-items">
-            <% order.items.forEach(item => { %>
+            <% (order.items || []).forEach(item => { %>
               <div class="result-item">
-                <span><%= item.name %> x<%= item.quantity %></span>
-                <span><%= (item.price * item.quantity).toLocaleString() %> د.ج</span>
+                <span><%= item.name %> x<%= item.quantity || 0 %></span>
+                <span><%= ((item.price || 0) * (item.quantity || 0)).toLocaleString() %> د.ج</span>
               </div>
             <% }) %>
           </div>

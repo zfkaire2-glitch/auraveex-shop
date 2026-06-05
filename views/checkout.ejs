@@ -38,7 +38,7 @@
               <label>الولاية <span class="required">*</span></label>
               <select name="wilaya" id="wilayaSelect" required>
                 <option value="">— اختر ولايتك —</option>
-                <% wilayas.forEach(w => { %>
+                <% (wilayas || []).forEach(w => { %>
                   <option value="<%= w.id %>"><%= w.name %></option>
                 <% }) %>
               </select>
@@ -63,16 +63,16 @@
       <div class="checkout-right">
         <div class="checkout-right-header">
           <h3>ملخص الطلب</h3>
-          <span class="count"><%= cart.length %></span>
+          <span class="count"><%= (cart || []).length %></span>
         </div>
         <div class="checkout-items" id="checkoutItems">
-          <% cart.forEach((item, idx) => { %>
+          <% (cart || []).forEach((item, idx) => { %>
             <div class="checkout-item" data-id="<%= item.id %>" data-size="<%= item.size %>">
-              <img src="<%= item.image %>" alt="<%= item.name %>" class="checkout-item-img" onerror="this.src='/images/placeholder.svg'">
+              <img src="<%= item.image || '/images/placeholder.svg' %>" alt="<%= item.name %>" class="checkout-item-img" onerror="this.src='/images/placeholder.svg'">
               <div class="checkout-item-details">
                 <div class="checkout-item-name"><%= item.name %></div>
                 <div class="checkout-item-meta">المقاس: <%= item.size %></div>
-                <div class="checkout-item-price"><%= item.price.toLocaleString() %> د.ج</div>
+                <div class="checkout-item-price"><%= (item.price || 0).toLocaleString() %> د.ج</div>
               </div>
               <div class="checkout-item-actions">
                 <div class="checkout-item-qty">
@@ -80,7 +80,7 @@
                   <input type="number" class="qty-val" value="<%= item.quantity %>" min="0" readonly>
                   <button type="button" class="qty-btn" onclick="updateQty(this, 1)">+</button>
                 </div>
-                <div class="checkout-item-total"><%= (item.price * item.quantity).toLocaleString() %> د.ج</div>
+                <div class="checkout-item-total"><%= ((item.price || 0) * (item.quantity || 0)).toLocaleString() %> د.ج</div>
                 <button type="button" class="checkout-item-remove" onclick="removeItem(this)" title="إزالة">✕</button>
               </div>
             </div>
@@ -89,7 +89,7 @@
         <div class="checkout-summary-lines">
           <div class="checkout-line">
             <span>المجموع الفرعي</span>
-            <span id="subtotalDisplay"><%= subtotal.toLocaleString() %> د.ج</span>
+            <span id="subtotalDisplay"><%= (subtotal || 0).toLocaleString() %> د.ج</span>
           </div>
           <div class="checkout-line" id="deliveryRow" style="display:none;">
             <span>التوصيل (Yalidine)</span>
@@ -97,7 +97,7 @@
           </div>
           <div class="checkout-line checkout-line-total">
             <span>المجموع الكلي</span>
-            <span id="totalDisplay"><%= subtotal.toLocaleString() %> د.ج</span>
+            <span id="totalDisplay"><%= (subtotal || 0).toLocaleString() %> د.ج</span>
           </div>
         </div>
         <p class="checkout-note">🚚 التوصيل لباب المنزل عبر Yalidine<br>💳 الدفع عند الاستلام</p>
@@ -106,9 +106,9 @@
     </div>
   </main>
   <script>
-    const DELIVERY_PRICES = <%- JSON.stringify(deliveryPrices) %>;
-    const COMMUNES = <%- JSON.stringify(communes) %>;
-    let CURRENT_SUBTOTAL = <%= subtotal %>;
+    const DELIVERY_PRICES = <%- JSON.stringify(deliveryPrices || {}) %>;
+    const COMMUNES = <%- JSON.stringify(communes || {}) %>;
+    let CURRENT_SUBTOTAL = <%= subtotal || 0 %>;
 
     function getCart() {
       return JSON.parse(sessionStorage.getItem('auraveex_cart') || 'null') || null;

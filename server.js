@@ -610,7 +610,7 @@ app.get('/account', (_req, res) => {
   const customer = store.findCustomer(_req.session.customerPhone);
   if (!customer) { _req.session.customerPhone = null; return res.redirect('/login'); }
   const orders = store.getCustomerOrders(_req.session.customerPhone);
-  res.render('account', { pageTitle: 'حسابي', customer, orders, cartCount: cartCount(_req) });
+  res.render('account', { pageTitle: 'حسابي', customer, orders, wilayas: WILAYAS, cartCount: cartCount(_req) });
 });
 
 app.post('/account/address', (_req, res) => {

@@ -38,25 +38,25 @@
       <div class="order-card">
         <h3>تفاصيل الطلب</h3>
         <div class="order-info">
-          <div>👤 <%= order.firstName %> <%= order.lastName %></div>
-          <div>📞 <%= order.phone %></div>
-          <div>📍 <%= order.address %><%= order.commune ? '، ' + order.commune : '' %>، <%= order.wilaya %></div>
+          <div>👤 <%= order.firstName || '' %> <%= order.lastName || '' %></div>
+          <div>📞 <%= order.phone || '' %></div>
+          <div>📍 <%= order.address || '' %><%= order.commune ? '، ' + order.commune : '' %>، <%= order.wilaya || '' %></div>
         </div>
-        <% order.items.forEach(item => { %>
+        <% (order.items || []).forEach(item => { %>
           <div class="order-item-line">
-            <span><%= item.name %> x<%= item.quantity %></span>
-            <span><%= (item.price * item.quantity).toLocaleString() %> د.ج</span>
+            <span><%= item.name %> x<%= item.quantity || 0 %></span>
+            <span><%= ((item.price || 0) * (item.quantity || 0)).toLocaleString() %> د.ج</span>
           </div>
         <% }) %>
         <% if (order.deliveryPrice) { %>
           <div class="order-item-line">
             <span>التوصيل</span>
-            <span><%= order.deliveryPrice.toLocaleString() %> د.ج</span>
+            <span><%= (order.deliveryPrice || 0).toLocaleString() %> د.ج</span>
           </div>
         <% } %>
         <div class="order-total-line">
           <span>المجموع الكلي</span>
-          <span><%= order.total.toLocaleString() %> د.ج</span>
+          <span><%= (order.total || 0).toLocaleString() %> د.ج</span>
         </div>
       </div>
 

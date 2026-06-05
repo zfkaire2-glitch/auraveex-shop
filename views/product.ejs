@@ -35,7 +35,7 @@
           <div class="sp-image-wrap">
             <img src="<%= (product.images && product.images[0]) || '/images/placeholder.svg' %>" alt="<%= product.name %>" id="mainImg" fetchpriority="high">
           </div>
-          <% if (product.oldPrice) { %>
+          <% if (product.oldPrice && product.price < product.oldPrice) { %>
             <span class="sp-badge">-<%= Math.round((1 - product.price / product.oldPrice) * 100) %>%</span>
           <% } %>
         </div>
@@ -70,7 +70,7 @@
           <div class="sp-field">
             <label>المقاس <span class="sp-required">*</span></label>
             <div class="sp-sizes">
-              <% product.sizes.forEach(s => { %>
+              <% (product.sizes || []).forEach(s => { %>
                 <label class="sp-size-btn">
                   <input type="radio" name="size" value="<%= s %>" <%= s === product.sizes[0] ? 'checked' : '' %> required>
                   <span><%= s %></span>
@@ -112,7 +112,7 @@
         <div class="sp-accordion">
           <details class="sp-details" open>
             <summary class="sp-summary">الوصف</summary>
-            <div class="sp-desc"><%- product.description.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>') %></div>
+            <div class="sp-desc"><%- (product.description || '').replace(/\r\n/g, '<br>').replace(/\n/g, '<br>') %></div>
           </details>
           <details class="sp-details">
             <summary class="sp-summary">معلومات التوصيل</summary>
@@ -164,8 +164,8 @@
           <% suggested.forEach(p => { %>
             <a href="/product/<%= p.id %>" class="sp-card">
               <div class="sp-card-img">
-                <img src="<%= p.images[0] %>" alt="<%= p.name %>" class="img-primary" loading="lazy">
-                <% if (p.images[1]) { %><img src="<%= p.images[1] %>" alt="<%= p.name %>" class="img-secondary" loading="lazy"><% } %>
+                <img src="<%= (p.images && p.images[0]) || '/images/placeholder.svg' %>" alt="<%= p.name %>" class="img-primary" loading="lazy">
+                <% if (p.images && p.images[1]) { %><img src="<%= p.images[1] %>" alt="<%= p.name %>" class="img-secondary" loading="lazy"><% } %>
               </div>
               <div class="sp-card-body">
                 <h3><%= p.name %></h3>

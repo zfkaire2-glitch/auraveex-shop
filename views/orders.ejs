@@ -7,7 +7,7 @@
   <%- include('partials/header') %>
   <main class="section">
     <h1>طلباتي</h1>
-    <% if (orders.length === 0) { %>
+    <% if (!orders || orders.length === 0) { %>
       <p class="empty">لا توجد طلبات بعد.</p>
     <% } else { %>
       <% orders.forEach(order => { %>
@@ -24,12 +24,12 @@
           </div>
           <div class="order-body">
             <div style="margin-bottom:0.3rem;">📍 <span><%= order.address %><%= order.commune ? '، ' + order.commune : '' %></span></div>
-            <% order.items.forEach(item => { %>
-              <div><%= item.name %> x<%= item.quantity %> — <%= (item.price * item.quantity).toLocaleString() %> د.ج</div>
+            <% (order.items || []).forEach(item => { %>
+              <div><%= item.name %> x<%= item.quantity || 0 %> — <%= ((item.price || 0) * (item.quantity || 0)).toLocaleString() %> د.ج</div>
             <% }) %>
           </div>
             <div class="order-footer">
-            <span><%= order.deliveryPrice ? 'المجموع (مع التوصيل): ' : 'المجموع: ' %><%= order.total.toLocaleString() %> د.ج</span>
+            <span><%= order.deliveryPrice ? 'المجموع (مع التوصيل): ' : 'المجموع: ' %><%= (order.total || 0).toLocaleString() %> د.ج</span>
             <% if (order.trackingCode) { %>
               <div style="margin-top:0.8rem;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
@@ -47,7 +47,7 @@
   </main>
   <%- include('partials/footer') %>
   <script>
-    <% orders.filter(o => o.trackingCode).forEach(order => { %>
+    <% (orders || []).filter(o => o.trackingCode).forEach(order => { %>
     (async function() {
       const code = <%- JSON.stringify(order.trackingCode) %>;
       const statusEl = document.getElementById('ts-<%= order.id %>');

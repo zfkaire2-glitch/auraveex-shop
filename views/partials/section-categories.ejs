@@ -1,7 +1,7 @@
 <section class="section" id="section-<%= section.id %>" data-section-id="<%= section.id %>" data-section-type="categories">
-  <h2><%= section.settings.heading %></h2>
+  <h2><%= section.settings.heading || '' %></h2>
   <div class="categories">
-    <% categories.forEach(function(cat) { %>
+    <% (categories || []).forEach(function(cat) { %>
       <a href="/products?category=<%= encodeURIComponent(cat) %>" class="category-card"><%= cat %></a>
     <% }) %>
   </div>

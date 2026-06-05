@@ -7,7 +7,7 @@
   <%- include('partials/header') %>
   <main class="section">
     <h1>سلة التسوق</h1>
-    <% if (cart.length === 0) { %>
+    <% if (!cart || cart.length === 0) { %>
       <div class="empty-cart">
         <p>سلتك فارغة</p>
         <a href="/products" class="btn">تسوق الآن</a>
@@ -15,12 +15,13 @@
     <% } else { %>
       <div class="cart-items">
         <% cart.forEach(item => { %>
+          <% var itemTotal = (item.price || 0) * (item.quantity || 0); %>
           <div class="cart-item">
-            <img src="<%= item.image %>" alt="<%= item.name %>">
+            <img src="<%= item.image || '/images/placeholder.svg' %>" alt="<%= item.name %>">
             <div class="cart-item-info">
               <h3><%= item.name %></h3>
               <p>المقاس: <%= item.size %></p>
-              <p><%= item.price.toLocaleString() %> د.ج</p>
+              <p><%= (item.price || 0).toLocaleString() %> د.ج</p>
             </div>
             <form action="/cart/update" method="POST" class="qty-form">
               <input type="hidden" name="id" value="<%= item.id %>">
@@ -29,7 +30,7 @@
               <button type="submit" class="btn-sm">تحديث</button>
             </form>
             <div class="item-total">
-              <%= (item.price * item.quantity).toLocaleString() %> د.ج
+              <%= itemTotal.toLocaleString() %> د.ج
             </div>
           </div>
         <% }) %>
@@ -37,7 +38,7 @@
       <div class="cart-summary">
         <div class="cart-total">
           <span>المجموع:</span>
-          <span><%= subtotal.toLocaleString() %> د.ج</span>
+          <span><%= (subtotal || 0).toLocaleString() %> د.ج</span>
         </div>
         <a href="/checkout" class="btn btn-lg">إتمام الشراء</a>
       </div>
