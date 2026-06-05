@@ -41,7 +41,7 @@ app.use(express.static(join(__dirname, 'public'), {
   maxAge: '1d',
   setHeaders: (res, _path, _stat) => {
     res.set('X-Content-Type-Options', 'nosniff');
-    res.set('X-Frame-Options', 'DENY');
+    res.set('X-Frame-Options', 'SAMEORIGIN');
     res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   }
 }));
@@ -179,7 +179,7 @@ app.get('/sitemap.xml', (_req, res) => {
 
 app.use((_req, _res, next) => {
   _res.setHeader('X-Content-Type-Options', 'nosniff');
-  _res.setHeader('X-Frame-Options', 'DENY');
+  _res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   _res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   _res.locals.customerPhone = _req.session.customerPhone || null;
   _res.locals.cartCount = (_req.session.cart || []).reduce((a, i) => a + i.quantity, 0);

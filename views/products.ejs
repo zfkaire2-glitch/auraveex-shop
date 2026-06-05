@@ -52,7 +52,10 @@
     <div class="products-grid">
       <% (products || []).forEach(function(p, idx) { %>
         <a href="/product/<%= p.id %>" class="product-card" style="--card-index: <%= idx %>">
-          <img src="<%= (p.images && p.images[0]) || '/images/placeholder.svg' %>" alt="<%= p.name %>" loading="lazy">
+          <div class="product-card-img">
+            <img src="<%= (p.images && p.images[0]) || '/images/placeholder.svg' %>" alt="<%= p.name %>" class="img-primary" loading="lazy">
+            <% if (p.images && p.images[1]) { %><img src="<%= p.images[1] %>" alt="<%= p.name %>" class="img-secondary" loading="lazy"><% } %>
+          </div>
           <h3><%= p.name %></h3>
           <div class="price">
             <span class="current"><%= p.price.toLocaleString() %> د.ج</span>

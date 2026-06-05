@@ -1,5 +1,59 @@
 {
   "homepage": {
-    "sections": []
+    "sections": [
+      {
+        "id": "hero-1",
+        "type": "hero",
+        "settings": {
+          "badge": "🔥 تسوق الآن",
+          "title": "<span>AURA VEEX</span>",
+          "subtitle": "الستريت وير الأوفر سايز بأعلى جودة — توصيل عبر Yalidine لباب المنزل",
+          "ctaText": "تسوق الآن",
+          "ctaLink": "/products",
+          "backgroundImage": "/uploads/hero-eagle.jpg",
+          "stats": [
+            { "icon": "🚚", "title": "توصيل عبر Yalidine" },
+            { "icon": "⭐", "title": "جودة عالية" },
+            { "icon": "💳", "title": "الدفع عند الاستلام" },
+            { "icon": "🛡️", "title": "منتج أصلي 100%" }
+          ]
+        }
+      },
+      {
+        "id": "trust-1",
+        "type": "trust_badges",
+        "settings": {
+          "heading": "لماذا AURA VEEX؟",
+          "badges": [
+            { "icon": "🇩🇿", "title": "توصيل لكل ولايات الجزائر" },
+            { "icon": "💳", "title": "الدفع عند الاستلام" },
+            { "icon": "🔄", "title": "إرجاع مجاني خلال 7 أيام" },
+            { "icon": "✅", "title": "منتوج أصلح ومضمون" }
+          ]
+        }
+      },
+      {
+        "id": "featured-1",
+        "type": "featured_products",
+        "settings": {
+          "heading": "🔥 أحدث المنتجات",
+          "count": 4
+        }
+      },
+      {
+        "id": "cat-1",
+        "type": "categories",
+        "settings": {
+          "heading": "📂 التصنيفات"
+        }
+      },
+      {
+        "id": "text-1",
+        "type": "text_block",
+        "settings": {
+          "content": "<h2 style=\"text-align:center;font-size:1.6rem;margin-bottom:0.5rem;\">💰 أسعار منافسة — جودة أوروبية</h2><p style=\"text-align:center;color:var(--text-secondary);font-size:1.05rem;max-width:600px;margin:0 auto;\">نوفر لكم أجود أنواع الألبسة الأوفر سايز والستريت وير المستوردة بأسعار تنافسية. الشحن عبر Yalidine لجميع ولايات الجزائر.</p>"
+        }
+      }
+    ]
   }
 }
