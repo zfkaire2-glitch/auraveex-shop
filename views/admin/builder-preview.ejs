@@ -28,7 +28,7 @@
 </head>
 <body>
   <%- include('../partials/header') %>
-  <main>
+  <main id="main-content">
     <% (sections || []).forEach(function(s) { %>
       <div style="position:relative" data-section-id="<%= s.id %>" data-section-type="<%= s.type %>">
         <% if (s.type === 'hero') { %>

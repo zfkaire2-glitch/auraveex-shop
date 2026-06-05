@@ -26,7 +26,7 @@
         <tbody>
           <% products.forEach(p => { %>
             <tr>
-              <td><img src="<%= p.images[0] || '/placeholder.png' %>" alt=""></td>
+              <td><img src="<%= (p.images || [])[0] || '/placeholder.png' %>" alt=""></td>
               <td><%= p.name %></td>
               <td><%= p.price.toLocaleString() %> د.ج</td>
               <td><%= p.category %></td>

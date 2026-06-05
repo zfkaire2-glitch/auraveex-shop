@@ -5,8 +5,8 @@
     <% fp.forEach(function(p, idx) { %>
       <a href="/product/<%= p.id %>" class="product-card" style="--card-index: <%= idx %>">
         <div class="product-card-img">
-          <img src="<%= p.images[0] %>" alt="<%= p.name %>" class="img-primary" loading="lazy">
-          <% if (p.images[1]) { %><img src="<%= p.images[1] %>" alt="<%= p.name %>" class="img-secondary" loading="lazy"><% } %>
+          <img src="<%= (p.images || [])[0] %>" alt="<%= p.name %>" class="img-primary" loading="lazy">
+          <% if ((p.images || [])[1]) { %><img src="<%= (p.images || [])[1] %>" alt="<%= p.name %>" class="img-secondary" loading="lazy"><% } %>
         </div>
         <h3><%= p.name %></h3>
         <div class="price">

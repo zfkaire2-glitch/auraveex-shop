@@ -7,15 +7,15 @@
     "@context": "https://schema.org",
     "@type": "Product",
     "name": "<%= product.name.replace(/"/g, '\\"') %>",
-    "image": [<% product.images && product.images.forEach(function(img, i) { %>
-      "<%= img %>"<%= i < product.images.length - 1 ? ',' : '' %>
+    "image": [<% (product.images || []).forEach(function(img, i) { %>
+      "<%= img.startsWith('/') ? baseUrl + img : img %>"<%= i < (product.images || []).length - 1 ? ',' : '' %>
     <% }) %>],
     "description": "<%= (product.description || '').replace(/"/g, '\\"').replace(/\n/g, ' ').slice(0, 200) %>",
     "sku": "<%= product.id %>",
     "brand": { "@type": "Brand", "name": "AURA VEEX" },
     "offers": {
       "@type": "Offer",
-      "url": "<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://auraveex-shop.onrender.com/product/' + product.id %>",
+      "url": "<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : baseUrl + '/product/' + product.id %>",
       "priceCurrency": "DZD",
       "price": "<%= product.price %>",
       "availability": "https://schema.org/InStock",
@@ -27,7 +27,7 @@
 <body>
   <%- include('partials/header') %>
 
-  <main class="sp-main">
+  <main class="sp-main" id="main-content">
     <div class="sp-container">
       <!-- Gallery -->
       <div class="sp-gallery">

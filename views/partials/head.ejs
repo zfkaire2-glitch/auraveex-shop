@@ -6,16 +6,16 @@
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="<%= ogTitle || pageTitle || 'AURA VEEX — متجر ألبسة جزائرية' %>">
 <meta property="og:description" content="<%= ogDescription || pageDescription || 'AURA VEEX — متجر ألبسة جزائرية متخصص في الأطقم الأوفر سايز والستريت وير المستوردة.' %>">
-<meta property="og:image" content="<%= ogImage || '/uploads/hero-eagle.jpg' %>">
-<meta property="og:url" content="<%= canonicalUrl || 'https://auraveex-shop.onrender.com' + (currentPath || '/') %>">
+<meta property="og:image" content="<%= ogImage || baseUrl + '/uploads/hero-eagle.jpg' %>">
+<meta property="og:url" content="<%= canonicalUrl || baseUrl + (currentPath || '/') %>">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ar_DZ">
 <meta property="og:site_name" content="AURA VEEX">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="<%= ogTitle || pageTitle || 'AURA VEEX' %>">
 <meta name="twitter:description" content="<%= ogDescription || pageDescription || 'متجر ألبسة جزائرية أوفر سايز' %>">
-<meta name="twitter:image" content="<%= ogImage || '/uploads/hero-eagle.jpg' %>">
-<link rel="canonical" href="<%= canonicalUrl || 'https://auraveex-shop.onrender.com' + (currentPath || '/') %>">
+<meta name="twitter:image" content="<%= ogImage || baseUrl + '/uploads/hero-eagle.jpg' %>">
+<link rel="canonical" href="<%= canonicalUrl || baseUrl + (currentPath || '/') %>">
 <link rel="icon" href="<%= typeof favicon !== 'undefined' && favicon ? favicon : '/favicon.ico' %>" type="image/x-icon">
 <link rel="stylesheet" href="/style.css">
 <% if (typeof themeCSS !== 'undefined' && themeCSS) { %>
@@ -29,8 +29,8 @@
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "AURA VEEX",
-  "url": "https://auraveex-shop.onrender.com",
-  "logo": "https://auraveex-shop.onrender.com/uploads/logo.png",
+  "url": "<%= baseUrl %>",
+  "logo": "<%= baseUrl %>/uploads/logo.png",
   "sameAs": [
     "https://wa.me/213551600923",
     "https://t.me/+213551600923",
@@ -49,12 +49,7 @@
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "AURA VEEX",
-  "url": "https://auraveex-shop.onrender.com",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://auraveex-shop.onrender.com/search?q={search_term_string}",
-    "query-input": "required name=search_term_string"
-  }
+  "url": "<%= baseUrl %>"
 }
 </script>
 

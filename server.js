@@ -46,6 +46,7 @@ app.use(express.static(join(__dirname, 'public'), {
   }
 }));
 app.set('view engine', 'ejs');
+app.set('trust proxy', 1);
 app.set('views', join(__dirname, 'views'));
 
 app.use(session({
@@ -191,6 +192,7 @@ app.use((_req, _res, next) => {
   _res.locals.ogDescription = null;
   _res.locals.ogImage = null;
   _res.locals.canonicalUrl = null;
+  _res.locals.baseUrl = `${_req.protocol}://${_req.get('host')}`;
   const activeTheme = getTheme();
   _res.locals.themeCSS = themeCSSVars(activeTheme);
   _res.locals.logoText = activeTheme.logo.type === 'text' ? activeTheme.logo.text : '';
@@ -380,11 +382,12 @@ app.get('/product/:id', (_req, res) => {
   const suggested = all
     .filter(p => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
+  const baseUrl = res.locals.baseUrl;
   res.render('product', {
     pageTitle: product.name,
     pageDescription: (product.description || '').slice(0, 160),
-    ogImage: product.images && product.images[0] ? product.images[0] : '/uploads/hero-eagle.jpg',
-    canonicalUrl: 'https://auraveex-shop.onrender.com/product/' + product.id,
+    ogImage: product.images && product.images[0] ? (product.images[0].startsWith('/') ? baseUrl + product.images[0] : product.images[0]) : baseUrl + '/uploads/hero-eagle.jpg',
+    canonicalUrl: baseUrl + '/product/' + product.id,
     product,
     suggested,
     cartCount: (_req.session.cart || []).reduce((a, i) => a + i.quantity, 0),

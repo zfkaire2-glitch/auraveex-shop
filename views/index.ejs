@@ -5,7 +5,7 @@
 </head>
 <body>
   <%- include('partials/header') %>
-  <main>
+  <main id="main-content">
     <% (sections || []).forEach(function(s) { %>
       <% if (s.type === 'hero') { %>
         <%- include('partials/section-hero', { section: s }) %>
