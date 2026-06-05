@@ -34,15 +34,14 @@ html:not([data-theme="dark"]) { --os-dark: 0; }
 
 @supports (--os-dark: 1) { :root { --os-dark: 0; } }
 
-html[data-theme="dark"],
-html:not([data-theme="dark"]) {
-  --bg-primary: #f4f4f4;
-  --bg-card: #ffffff;
-  --text-primary: #111111;
-  --text-secondary: #555555;
-  --text-muted: #888888;
-  --text-light: #999999;
-  --border-light: #e5e5e5;
+html[data-theme="dark"] {
+  --bg-primary: #111111;
+  --bg-card: #1a1a1a;
+  --text-primary: #f0f0f0;
+  --text-secondary: #aaaaaa;
+  --text-muted: #777777;
+  --text-light: #cccccc;
+  --border-light: #2a2a2a;
 }
 
 /* ===== Base ===== */

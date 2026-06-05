@@ -278,32 +278,6 @@ html[data-theme="dark"] {
   --btn-text: ${d.navbar_text};
   --accent: ${d.accent};
   --accent-hover: ${d.accent_hover};
-  --footer-bg: ${d.footer_bg};
-  --radius-sm: ${d.radius_sm};
-  --radius-md: ${d.radius};
-  --radius-lg: ${d.radius};
-  --radius-xl: ${d.radius};
-  --shadow-sm: 0 2px 8px rgba(0,0,0,.3);
-  --shadow-md: 0 4px 16px rgba(0,0,0,.4);
-  --shadow-lg: 0 12px 32px rgba(0,0,0,.5);
-}
-html[data-theme="dark"] {
-  --bg-primary: ${d.bg_primary};
-  --bg-card: ${d.bg_card};
-  --bg-dark: ${d.navbar_bg};
-  --bg-dark-hover: ${d.navbar_text_hover};
-  --bg: ${d.bg_card};
-  --text-primary: ${d.text_primary};
-  --text-secondary: ${d.text_secondary};
-  --text-muted: ${d.text_muted};
-  --text-light: ${d.navbar_text};
-  --text: ${d.text_primary};
-  --border-light: ${d.border_light};
-  --border-dark: ${d.navbar_bg};
-  --border: ${d.border_light};
-  --btn-text: ${d.navbar_text};
-  --accent: ${d.accent};
-  --accent-hover: ${d.accent_hover};
   --radius-sm: ${d.radius_sm};
   --radius-md: ${d.radius};
   --radius-lg: ${d.radius};
@@ -741,7 +715,7 @@ app.post('/admin/orders/status', requireAdmin, (_req, res) => {
   if (order && YALIDINE_API_KEY) {
     try {
       const msg = 'مرحباً ' + order.firstName + '! تم تحديث حالة طلبك ' + order.id + ' إلى: ' + order.status;
-      fetch('https://wa.me/213551600923?text=' + encodeURIComponent(msg));
+      console.log('[WA NOTIFICATION]', msg);
     } catch (e) { /* ignore */ }
   }
   res.redirect('/admin/orders');
