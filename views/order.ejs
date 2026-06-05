@@ -76,6 +76,17 @@
       <a href="/products" class="btn">متابعة التسوق</a>
     </div>
   </main>
+  <% if (typeof metaPixelId !== 'undefined' && metaPixelId) { %>
+  <script>
+    fbq('track', 'Purchase', {
+      value: <%= (order.total || 0) %>,
+      currency: 'DZD',
+      content_ids: [<% (order.items || []).forEach(function(item, i) { %>'<%= item.id || "" %>'<%= i < (order.items || []).length - 1 ? ',' : '' %><% }) %>],
+      content_type: 'product',
+      num_items: <%= (order.items || []).reduce(function(a, i) { return a + (i.quantity || 0); }, 0) %>
+    });
+  </script>
+  <% } %>
   <%- include('partials/footer') %>
 </body>
 </html>

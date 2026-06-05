@@ -207,6 +207,18 @@
     </div>
   </div>
 
+  <% if (typeof metaPixelId !== 'undefined' && metaPixelId) { %>
+  <script>
+    fbq('track', 'ViewContent', {
+      content_name: '<%= product.name.replace(/'/g, "\\'") %>',
+      content_category: '<%= (product.category || "").replace(/'/g, "\\'") %>',
+      content_ids: ['<%= product.id %>'],
+      content_type: 'product',
+      value: <%= product.price %>,
+      currency: 'DZD'
+    });
+  </script>
+  <% } %>
   <script>
     const images = [<% if (product.images) { product.images.forEach((img, i) => { %>'<%= img %>'<%= i < product.images.length - 1 ? ',' : '' %><% }) } %>];
     let currentIdx = 0;
@@ -250,6 +262,18 @@
     function shareFacebook() { window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank'); }
     function copyLink() { navigator.clipboard.writeText(window.location.href).then(function() { showToast('تم نسخ الرابط!'); }); }
 function showToast(msg) { var t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:12px 24px;border-radius:50px;font-size:.9rem;z-index:99999;font-weight:600;transition:opacity .3s'; document.body.appendChild(t); setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){t.remove()},300) },2000); }
+
+    document.querySelector('.sp-form') && document.querySelector('.sp-form').addEventListener('submit', function() {
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'AddToCart', {
+          content_name: '<%= product.name.replace(/'/g, "\\'") %>',
+          content_ids: ['<%= product.id %>'],
+          content_type: 'product',
+          value: <%= product.price %>,
+          currency: 'DZD'
+        });
+      }
+    });
 
     function buyNow() {
       var form = document.querySelector('.sp-form');

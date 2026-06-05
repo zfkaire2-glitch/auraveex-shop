@@ -19,6 +19,7 @@ import * as store from './store.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
+const META_PIXEL_ID = process.env.META_PIXEL_ID || '';
 
 function startWorker() {
   initSheets();
@@ -199,6 +200,7 @@ app.use((_req, _res, next) => {
   _res.locals.logoImg = activeTheme.logo.type === 'image' ? activeTheme.logo.image || '' : '';
   _res.locals.favicon = activeTheme.favicon || '';
   _res.locals.heroImage = activeTheme.hero_image || '/uploads/hero-eagle.jpg';
+  _res.locals.metaPixelId = META_PIXEL_ID;
   next();
 });
 
