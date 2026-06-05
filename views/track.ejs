@@ -6,24 +6,44 @@
 <body>
   <%- include('partials/header') %>
   <main class="section">
-    <div class="track-page">
-      <h1>📦 تتبع طلبك</h1>
-      <p class="sub">أدخل رقم هاتفك لتتبع طلبك</p>
+    <div class="track-hero">
+      <div class="track-hero-bg"></div>
+      <div class="track-hero-content">
+        <div class="track-icon-big">📦</div>
+        <h1>تتبع طلبك</h1>
+        <p class="track-hero-sub">أدخل رقم هاتفك أو رمز التتبع لمعرفة حالة طلبك</p>
 
-      <form method="POST" action="/track" class="track-form">
-        <input type="text" name="query" value="<%= query %>" placeholder="مثال: 0555123456" required>
-        <button type="submit">بحث</button>
-      </form>
+        <form method="POST" action="/track" class="track-search-form">
+          <div class="track-search-wrapper">
+            <span class="track-search-icon">🔍</span>
+            <input type="text" name="query" value="<%= query %>" placeholder="رقم الهاتف أو رمز التتبع" class="track-search-input" autocomplete="off">
+            <button type="submit" class="track-search-btn">تتبع</button>
+          </div>
+        </form>
 
+        <div class="track-quick-hint">
+          <span>💡</span>
+          <span>مثال: <strong>0555123456</strong> أو <strong>DZ123456789</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-results">
       <% if (error) { %>
-        <div class="error"><%= error %></div>
+        <div class="track-error">
+          <span class="track-error-icon">⚠️</span>
+          <span><%= error %></span>
+        </div>
       <% } %>
 
       <% if (order) { %>
-        <div class="result-card">
-          <div class="result-header">
-            <span class="id">📋 <%= order.id %></span>
-            <span class="badge badge-<%=
+        <div class="track-order-card">
+          <div class="track-order-top">
+            <div>
+              <div class="track-order-id-label">رقم الطلب</div>
+              <div class="track-order-id"><%= order.id %></div>
+            </div>
+            <span class="track-badge track-badge-<%=
               order.status === 'جديد' ? 'new' :
               order.status === 'اتصال 1' ? 'call1' :
               order.status === 'اتصال 2' ? 'call2' :
@@ -31,61 +51,81 @@
               order.status === 'ملغي' ? 'cancelled' : 'new'
             %>"><%= order.status %></span>
           </div>
-          <div class="result-body">
-            <div>👤 <%= order.firstName %> <%= order.lastName %></div>
-            <div>📞 <%= order.phone %></div>
-            <div>📍 <%= order.address %><%= order.commune ? '، ' + order.commune : '' %>، <%= order.wilaya %></div>
+
+          <div class="track-order-info">
+            <div class="track-info-row">
+              <span class="track-info-label">👤 العميل</span>
+              <span class="track-info-value"><%= order.firstName %> <%= order.lastName %></span>
+            </div>
+            <div class="track-info-row">
+              <span class="track-info-label">📞 الهاتف</span>
+              <span class="track-info-value"><%= order.phone %></span>
+            </div>
+            <div class="track-info-row">
+              <span class="track-info-label">📍 العنوان</span>
+              <span class="track-info-value"><%= order.address %><%= order.commune ? '، ' + order.commune : '' %>، <%= order.wilaya %></span>
+            </div>
           </div>
-          <div class="result-items">
+
+          <div class="track-order-items">
+            <div class="track-items-header">المنتجات</div>
             <% (order.items || []).forEach(item => { %>
-              <div class="result-item">
-                <span><%= item.name %> x<%= item.quantity || 0 %></span>
-                <span><%= ((item.price || 0) * (item.quantity || 0)).toLocaleString() %> د.ج</span>
+              <div class="track-item-row">
+                <span class="track-item-name"><%= item.name %> <span class="track-item-qty">×<%= item.quantity || 0 %></span></span>
+                <span class="track-item-price"><%= ((item.price || 0) * (item.quantity || 0)).toLocaleString() %> د.ج</span>
               </div>
             <% }) %>
           </div>
-          <div class="result-body">
-            <% if (order.deliveryPrice) { %>
-              <div>🚚 التوصيل: <span><%= order.deliveryPrice.toLocaleString() %> د.ج</span></div>
-            <% } %>
-          </div>
-          <div class="result-total">
+
+          <% if (order.deliveryPrice) { %>
+            <div class="track-delivery-row">
+              <span>🚚 التوصيل</span>
+              <span><%= order.deliveryPrice.toLocaleString() %> د.ج</span>
+            </div>
+          <% } %>
+
+          <div class="track-total-row">
             <span>المجموع</span>
             <span><%= order.total.toLocaleString() %> د.ج</span>
           </div>
+
+          <% if (order.trackingCode) { %>
+            <div class="track-yalidine-section">
+              <div class="track-yalidine-header">
+                <span>📦 تتبع الشحنة (Yalidine)</span>
+                <a href="https://track.yalidine.app/<%= order.trackingCode %>" target="_blank" class="track-yalidine-link">فتح في ياليدين ↗</a>
+              </div>
+              <div class="track-yalidine-code">رمز التتبع: <strong><%= order.trackingCode %></strong></div>
+              <div id="trackingStatus" class="track-yalidine-status">جاري تحميل حالة التتبع...</div>
+              <iframe id="trackingFallback" src="https://track.yalidine.app/<%= order.trackingCode %>" style="display:none;width:100%;height:320px;border:1px solid #eee;border-radius:12px;background:#fff;" sandbox="allow-scripts allow-same-origin"></iframe>
+            </div>
+          <% } %>
+
           <% if (order.statusHistory && order.statusHistory.length > 0) { %>
-            <div style="margin-top:1rem;padding-top:1rem;border-top:2px solid #f0f0f0;">
-              <strong style="font-size:1rem;display:block;margin-bottom:0.8rem;">🔔 حالة الطلب</strong>
-              <div class="track-steps">
+            <div class="track-timeline-section">
+              <div class="track-timeline-title">🔔 سجل حالة الطلب</div>
+              <div class="track-timeline">
                 <% order.statusHistory.forEach(function(s) { %>
-                  <div class="track-step done">
-                    <span class="icon">✅</span>
-                    <span class="label"><%= s.from %> → <%= s.to %></span>
-                    <span class="date"><%= new Date(s.timestamp).toLocaleDateString('ar-DZ') %></span>
+                  <div class="track-timeline-step done">
+                    <div class="track-timeline-dot"></div>
+                    <div class="track-timeline-body">
+                      <div class="track-timeline-label"><%= s.from %> → <%= s.to %></div>
+                      <div class="track-timeline-date"><%= new Date(s.timestamp).toLocaleDateString('ar-DZ') %></div>
+                    </div>
                   </div>
                 <% }) %>
-                <div class="track-step done">
-                  <span class="icon">📝</span>
-                  <span class="label">تم إنشاء الطلب</span>
-                  <span class="date"><%= new Date(order.createdAt || Date.now()).toLocaleDateString('ar-DZ') %></span>
+                <div class="track-timeline-step done">
+                  <div class="track-timeline-dot"></div>
+                  <div class="track-timeline-body">
+                    <div class="track-timeline-label">تم إنشاء الطلب</div>
+                    <div class="track-timeline-date"><%= new Date(order.createdAt || Date.now()).toLocaleDateString('ar-DZ') %></div>
+                  </div>
                 </div>
               </div>
             </div>
           <% } %>
-          <% if (order.trackingCode) { %>
-            <div style="margin-top:1rem;">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
-                <strong style="font-size:1rem;">📦 تتبع الشحنة</strong>
-                <a href="https://track.yalidine.app/<%= order.trackingCode %>" target="_blank" style="font-size:0.9rem;color:#1565c0;">فتح في ياليدين ↗</a>
-              </div>
-              <div id="trackingStatus" style="text-align:center;padding:2rem;background:#f0f0f0;border-radius:10px;font-size:1rem;color:#888;">جاري تحميل حالة التتبع...</div>
-              <iframe id="trackingFallback" src="https://track.yalidine.app/<%= order.trackingCode %>" style="display:none;width:100%;height:320px;border:1px solid #e0e0e0;border-radius:10px;background:#fff;" sandbox="allow-scripts allow-same-origin"></iframe>
-            </div>
-          <% } %>
         </div>
       <% } %>
-
-      <div class="hint">💡 أدخل رقم هاتفك المستخدم في الطلب لتتبعه</div>
     </div>
   </main>
   <%- include('partials/footer') %>
@@ -100,10 +140,9 @@
         const json = await res.json();
         if (json.available && json.data) {
           const d = json.data;
-          let steps, current, deliveryDate;
+          let steps, current;
           if (d.history) {
             steps = d.history;
-            const done = steps.filter(s => s.status === 'done');
             current = steps.find(s => s.status === 'current') || steps[steps.length - 1];
           } else if (d.tracking) {
             steps = d.tracking;
@@ -111,21 +150,18 @@
           }
           if (d.etat) current = { label: d.etat };
           statusEl.innerHTML = '';
-          statusEl.style.textAlign = 'right';
-          statusEl.style.padding = '1rem';
-          statusEl.style.background = '#f9f9f9';
           if (steps && steps.length) {
             const container = document.createElement('div');
-            container.className = 'track-steps';
+            container.className = 'track-timeline';
             steps.forEach(s => {
               const div = document.createElement('div');
-              div.className = 'track-step ' + (s.status === 'done' || s.status === 'current' ? 'done' : 'pending');
-              div.innerHTML = '<span class="icon">' + (s.status === 'done' ? '✅' : s.status === 'current' ? '🔄' : '⏳') + '</span><span class="label">' + (s.title || s.label || s.etat || s) + '</span><span class="date">' + (s.date || s.updated_at || '') + '</span>';
+              div.className = 'track-timeline-step ' + (s.status === 'done' || s.status === 'current' ? 'done' : 'pending');
+              div.innerHTML = '<div class="track-timeline-dot"></div><div class="track-timeline-body"><div class="track-timeline-label">' + (s.title || s.label || s.etat || s) + '</div><div class="track-timeline-date">' + (s.date || s.updated_at || '') + '</div></div>';
               container.appendChild(div);
             });
             statusEl.appendChild(container);
           } else if (current) {
-            statusEl.innerHTML = '<div style="text-align:center;font-size:1.2rem;padding:1rem;"><div style="font-size:3rem;margin-bottom:0.5rem;">📦</div><div style="font-weight:700;color:#1a1a1a;">' + (current.title || current.label || current.etat || 'غير معروف') + '</div></div>';
+            statusEl.innerHTML = '<div style="text-align:center;padding:2rem;"><div style="font-size:3rem;margin-bottom:0.5rem;">📦</div><div style="font-weight:700;font-size:1.2rem;">' + (current.title || current.label || current.etat || 'غير معروف') + '</div></div>';
           } else {
             fallbackEl.style.display = 'block';
             statusEl.style.display = 'none';
