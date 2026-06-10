@@ -37,6 +37,11 @@
 | `/sitemap.xml` | Dynamic sitemap |
 | `/robots.txt` | Dynamic robots (blocks `/admin/`, `/api/`) |
 
+## Recovery
+- **RECOVERY.md** — دليل كامل لاسترجاع المشروع بعد الفرمطة
+- **GitHub**: `https://github.com/zfkaire2-glitch/auraveex-shop.git`
+- **Render**: `https://auraveex-shop.onrender.com`
+
 ## Google Sheets Gotcha
 `sheets.js:saveOrder()` must use `insertDataOption: 'INSERT_ROWS'` on `values.append()`.
 Without this the API overwrites row 2 instead of inserting a new row.
@@ -53,6 +58,13 @@ Without this the API overwrites row 2 instead of inserting a new row.
 
 ## JSON-LD (in `views/partials/head.ejs`)
 3 blocks rendered on all pages: `Organization` (with `sameAs`, ContactPoint, logo), `WebSite` (with SearchAction), `Product` (only on product detail page via `product.ejs`).
+
+## Telegram Bot (مستقل)
+`telegram-bot.js` — سكريبت منفصل يراقب Google Sheets ويبعث إشعارات على تليغرام المالك.
+- **Env vars**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `TELEGRAM_POLL_INTERVAL` (ms, default 30s)
+- **Run**: `node telegram-bot.js` (نافذة CLI لوحدها)
+- **Tracking**: يحفظ الـ IDs المرسلة في `data/telegram-sent.json` باش ما يبعتهومش مرتين
+- لإعداد البوت: كلم [@BotFather](https://t.me/botfather) تولد توكن، و [@userinfobot](https://t.me/userinfobot) تجيب Chat ID
 
 ## Render Deploy
 - Free tier: 512MB RAM, cold start ~30–60s
@@ -75,3 +87,17 @@ None configured. No ESLint, Prettier, or TypeScript.
 
 ## Customers
 Simple local auth: phone + sha256 password. Stored in `data/customers.json`. No OAuth or email.
+
+## WhatsApp Notifications
+`whatsapp.js` sends order confirmation via WhatsApp Cloud API (Meta).
+- **Env vars**: `WHATSAPP_PHONE_ID`, `WHATSAPP_TOKEN`
+- Triggered automatically after `saveOrder()` in `POST /checkout`
+- Number format: converts `05XX...` to `2135XX...` automatically
+- Check status: `/debug` shows `whatsAppReady: true/false`
+- **Pricing**: Free up to 1,000 conversations/month
+
+## Debug Routes
+| Route | Purpose |
+|---|---|
+| `/debug` | Show sheets + WhatsApp status |
+| `/debug/test-sheet` | Test Google Sheets append |
